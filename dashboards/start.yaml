@@ -1957,6 +1957,33 @@ button_card_templates:
       grid:
       - height: auto
     template: frame
+  frame_service:
+    template: frame_tile
+    tap_action:
+      action: none
+    variables:
+      title: ''
+      url: ''
+      link: ''
+      up: []
+      info: []
+      charts: []
+    custom_fields:
+      body: |-
+        [[[
+        const fx = variables.fx; if (!fx) return '';
+        const e = entity, s = e ? e.state : '';
+        const UP = variables.up && variables.up.length ? variables.up : ['on','running','online','home','connected'];
+        const up = !!e && UP.includes(s);
+        const na = !e || s === 'unavailable' || s === 'unknown';
+        const name = variables.name || (e ? e.attributes.friendly_name : '');
+        const key = (e ? e.entity_id : '') + '|' + name;
+        (window.__frameSvcs || (window.__frameSvcs = {}))[key] = { name: variables.title || name, icon: variables.icon || (e && e.attributes.icon), status: e ? e.entity_id : null,
+          up: UP, url: variables.url, link: variables.link, info: variables.info, charts: variables.charts };
+        fx.load('frame-popup.js');
+        const sub = variables.sub || (e ? (hass.formatEntityState ? hass.formatEntityState(e) : s) : '');
+        return `<div class="sc${up ? ' is-active' : ''}" style="position:relative;${na ? 'opacity:.45' : ''}" data-svc="${fx.esc(key)}" onpointerdown="this.__p=[event.clientX,event.clientY,Date.now()]" onpointerup="window.__frameSvc && window.__frameSvc(this.dataset.svc,this,event)"><ha-icon icon="${variables.icon || (e && e.attributes.icon) || 'mdi:server'}"></ha-icon><b>${fx.esc(name)}</b><span>${fx.esc(sub)} · Details</span></div>`;
+        ]]]
 views:
 - cards:
   - template: frame_rail
@@ -3103,13 +3130,48 @@ views:
           title: Host
       - cards:
         - entity: sensor.host_status
-          tap_action:
-            action: more-info
-          template: frame_tile
+          template: frame_service
           type: custom:button-card
           variables:
             icon: mdi:server
-            name: Status
+            name: Proxmox
+            url: https://proxmox.local:8006
+            link: Proxmox öffnen
+            charts:
+            - label: CPU
+              entity: sensor.host_cpu_auslastung
+              decimals: 0
+            - label: Arbeitsspeicher
+              entity: sensor.host_arbeitsspeicher_prozent
+              decimals: 0
+            info:
+            - label: Läuft
+              entity: sensor.host_betriebszeit
+            - label: CPU-Kerne
+              entity: sensor.host_cpu_kerne
+            - label: Arbeitsspeicher
+              entity: sensor.host_arbeitsspeicher_auslastung
+              of: sensor.host_arbeitsspeicher_gesamt
+              warn_above: 90
+            - label: Systemplatte
+              entity: sensor.host_massenspeicher_belegt
+              of: sensor.host_massenspeicher_gesamt
+              warn_above: 85
+            - label: Backup-Speicher (NAS)
+              entity: sensor.nas_backup_belegt
+              of: sensor.nas_backup_gesamt
+              decimals: 0
+              warn_above: 85
+            - label: Letztes Backup
+              entity: sensor.host_letztes_backup
+              ago: true
+            - label: Backup-Dauer
+              entity: sensor.host_backup_dauer
+            - label: Backup-Status
+              entity: binary_sensor.host_backup_status
+            - label: Proxmox VE
+              entity: update.host_proxmox
+            title: Proxmox Host
         layout:
           card_margin: 0
           grid-auto-rows: 72px
@@ -3154,22 +3216,78 @@ views:
           variables:
             icon: mdi:home-assistant
             name: Home Assistant
-        - entity: binary_sensor.server_n8n
-          tap_action:
-            action: more-info
-          template: frame_tile
+        - entity: binary_sensor.server_frigate
+          template: frame_service
           type: custom:button-card
           variables:
             icon: mdi:cctv
             name: Frigate
+            url: http://frigate.local:5000
+            link: Frigate öffnen
+            charts:
+            - label: CPU
+              entity: sensor.frigate_cpu_auslastung
+              decimals: 0
+            - label: Arbeitsspeicher
+              entity: sensor.frigate_arbeitsspeicher_prozent
+              decimals: 0
+            info:
+            - label: Läuft
+              entity: sensor.frigate_betriebszeit
+            - label: Arbeitsspeicher
+              entity: sensor.frigate_arbeitsspeicher_belegt
+              of: sensor.frigate_arbeitsspeicher_gesamt
+              warn_above: 90
+            - label: Container-Platte
+              entity: sensor.frigate_massenspeicher_belegt
+              of: sensor.frigate_massenspeicher_gesamt
+              warn_above: 85
+            - label: Aufnahmen (HDD)
+              entity: sensor.nas_aufnahmen_belegt
+              of: sensor.nas_aufnahmen_gesamt
+              decimals: 0
+              warn_above: 90
+            - label: Aufnahmen (SSD)
+              entity: sensor.nas_aufnahmen_ssd_belegt
+              of: sensor.nas_aufnahmen_ssd_gesamt
+              decimals: 0
+              warn_above: 90
+            - label: Frigate
+              entity: update.frigate_server
+            - label: Frigate-Integration
+              entity: update.frigate_update
         - entity: binary_sensor.server_adguard
-          tap_action:
-            action: more-info
-          template: frame_tile
+          template: frame_service
           type: custom:button-card
           variables:
             icon: mdi:shield-check
             name: AdGuard
+            url: http://adguard.local
+            link: AdGuard öffnen
+            charts:
+            - label: CPU
+              entity: sensor.adguard_cpu_auslastung
+              decimals: 1
+            - label: Arbeitsspeicher
+              entity: sensor.adguard_arbeitsspeicher_auslastung_2
+              decimals: 0
+            info:
+            - label: Läuft
+              entity: sensor.adguard_betriebszeit
+            - label: Arbeitsspeicher
+              entity: sensor.adguard_arbeitsspeicher_auslastung
+              of: sensor.adguard_maximale_arbeitsspeicher_auslastung
+              warn_above: 90
+            - label: Container-Platte
+              entity: sensor.adguard_massenspeicher_auslastung
+              of: sensor.adguard_maximale_massenspeicher_auslastung
+              warn_above: 85
+            - label: Netzwerk empfangen
+              entity: sensor.adguard_netzwerk_eingang
+              note: seit dem letzten Start
+            - label: Netzwerk gesendet
+              entity: sensor.adguard_netzwerk_ausgang
+              note: seit dem letzten Start
         - entity: binary_sensor.server_paperless_ngx
           tap_action:
             action: more-info

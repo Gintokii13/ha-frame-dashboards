@@ -2,7 +2,7 @@
 
 Alle Entity-IDs in diesem Repo sind **Platzhalter**. Sie folgen dem Schema `domain.raum_funktion` und müssen an die eigenen IDs angepasst werden – am einfachsten per Suchen & Ersetzen in den Dashboard-Dateien, bevor sie im Raw-Editor eingefügt werden.
 
-Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (start, uebersicht, klima-heizung, einkauf-liste, szenen).
+Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (start, uebersicht, klima-heizung, einkauf-liste, szenen).
 
 ## `person` (2)
 
@@ -129,13 +129,22 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `climate.vtherm_wohnzimmer` | klima-heizung, start, uebersicht |
 | `climate.wohnzimmer_gesamt` | klima-heizung |
 
-## `sensor` (175)
+## `sensor` (205)
 
 | Entität | Dashboards |
 |---|---|
 | `sensor.a01_pumpe_zirkulation` | klima-heizung |
 | `sensor.a02_pumpe_warmwasser` | klima-heizung |
 | `sensor.a03_pumpe_hk1` | klima-heizung |
+| `sensor.adguard_arbeitsspeicher_auslastung` | start |
+| `sensor.adguard_arbeitsspeicher_auslastung_2` | start |
+| `sensor.adguard_betriebszeit` | start |
+| `sensor.adguard_cpu_auslastung` | start |
+| `sensor.adguard_massenspeicher_auslastung` | start |
+| `sensor.adguard_maximale_arbeitsspeicher_auslastung` | start |
+| `sensor.adguard_maximale_massenspeicher_auslastung` | start |
+| `sensor.adguard_netzwerk_ausgang` | start |
+| `sensor.adguard_netzwerk_eingang` | start |
 | `sensor.ankleidezimmer_absolute_feuchte` | klima-heizung |
 | `sensor.ankleidezimmer_humidity` | klima-heizung |
 | `sensor.ankleidezimmer_temperature` | klima-heizung |
@@ -172,6 +181,13 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `sensor.elektroraum_temperature` | klima-heizung |
 | `sensor.energy_production_today` | start |
 | `sensor.energy_production_tomorrow` | start |
+| `sensor.frigate_arbeitsspeicher_belegt` | start |
+| `sensor.frigate_arbeitsspeicher_gesamt` | start |
+| `sensor.frigate_arbeitsspeicher_prozent` | start |
+| `sensor.frigate_betriebszeit` | start |
+| `sensor.frigate_cpu_auslastung` | start |
+| `sensor.frigate_massenspeicher_belegt` | start |
+| `sensor.frigate_massenspeicher_gesamt` | start |
 | `sensor.gartenpumpe_leistung` | start |
 | `sensor.gaste_wc_absolute_feuchte` | klima-heizung |
 | `sensor.gaste_wc_humidity` | klima-heizung |
@@ -193,7 +209,15 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `sensor.hkr1_betriebsart` | klima-heizung |
 | `sensor.hkr1_solltemperatur_tag` | klima-heizung |
 | `sensor.host_arbeitsspeicher_auslastung` | start, uebersicht |
+| `sensor.host_arbeitsspeicher_gesamt` | start |
+| `sensor.host_arbeitsspeicher_prozent` | start |
+| `sensor.host_backup_dauer` | start |
+| `sensor.host_betriebszeit` | start |
 | `sensor.host_cpu_auslastung` | start, uebersicht |
+| `sensor.host_cpu_kerne` | start |
+| `sensor.host_letztes_backup` | start |
+| `sensor.host_massenspeicher_belegt` | start |
+| `sensor.host_massenspeicher_gesamt` | start |
 | `sensor.host_status` | start, uebersicht |
 | `sensor.kaffeemaschine_power` | start |
 | `sensor.kaltwassertemperatur` | klima-heizung |
@@ -221,6 +245,12 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `sensor.luftreiniger_leistung` | start |
 | `sensor.luftreiniger_schlafzimmer_derzeitiger_verbrauch` | start |
 | `sensor.mold_indicator` | klima-heizung |
+| `sensor.nas_aufnahmen_belegt` | start |
+| `sensor.nas_aufnahmen_gesamt` | start |
+| `sensor.nas_aufnahmen_ssd_belegt` | start |
+| `sensor.nas_aufnahmen_ssd_gesamt` | start |
+| `sensor.nas_backup_belegt` | start |
+| `sensor.nas_backup_gesamt` | start |
 | `sensor.power_production_now` | start |
 | `sensor.saugroboter_leistung` | start |
 | `sensor.schlafzimmer_absolute_feuchte` | klima-heizung |
@@ -309,7 +339,7 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `sensor.zirkulation_betriebsart` | klima-heizung |
 | `sensor.zirkulationsdurchfluss` | klima-heizung |
 
-## `binary_sensor` (26)
+## `binary_sensor` (27)
 
 | Entität | Dashboards |
 |---|---|
@@ -320,6 +350,7 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `binary_sensor.fenster_kontakt_2` | start, uebersicht |
 | `binary_sensor.garage_motion` | start, uebersicht |
 | `binary_sensor.garten_motion` | start, uebersicht |
+| `binary_sensor.host_backup_status` | start |
 | `binary_sensor.kontakt_briefkasten_contact` | start, uebersicht |
 | `binary_sensor.kontakt_fenster_spule_contact` | start, uebersicht |
 | `binary_sensor.kontakt_haustur_contact` | start, uebersicht |
@@ -330,9 +361,9 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `binary_sensor.luften_sinnvoll_obergeschoss` | klima-heizung |
 | `binary_sensor.server_adguard` | start, uebersicht |
 | `binary_sensor.server_bot` | start, uebersicht |
+| `binary_sensor.server_frigate` | start, uebersicht |
 | `binary_sensor.server_homarr` | start, uebersicht |
 | `binary_sensor.server_homeassistant` | start, uebersicht |
-| `binary_sensor.server_n8n` | start, uebersicht |
 | `binary_sensor.server_nginxproxymanager` | start, uebersicht |
 | `binary_sensor.server_paperless_ngx` | start, uebersicht |
 | `binary_sensor.server_pulse` | start, uebersicht |
@@ -497,6 +528,14 @@ Insgesamt 406 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `button.teamspeak_snapshot_erstellen` | start, uebersicht |
 | `button.teamspeak_starten` | start, uebersicht |
 | `button.teamspeak_stoppen` | start, uebersicht |
+
+## `update` (3)
+
+| Entität | Dashboards |
+|---|---|
+| `update.frigate_server` | start |
+| `update.frigate_update` | start |
+| `update.host_proxmox` | start |
 
 ## `weather` (1)
 

@@ -1905,14 +1905,14 @@ views:
       card_mod:
         style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_homeassistant'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
           %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
-    - entity: binary_sensor.server_n8n
+    - entity: binary_sensor.server_frigate
       grid_options:
         columns: 6
       icon: mdi:cctv
       name: Frigate
       type: tile
       card_mod:
-        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_n8n'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_frigate'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
           %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
     - entity: binary_sensor.server_adguard
       grid_options:
