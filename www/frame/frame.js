@@ -1,3 +1,5 @@
+// Frame-Runtime von Chris Jahn aus https://github.com/slcr/ha-frame-starter (MIT),
+// Stand 1becc23 vom 17.10.2026, gekuerzt auf die hier genutzten Helfer, sonst unveraendert.
 const V = new URL(import.meta.url).search;
 const DIR = new URL('.', import.meta.url).pathname;
 const BUTTON_CARD = '/hacsfiles/button-card/button-card.js';

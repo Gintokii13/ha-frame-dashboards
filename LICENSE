@@ -1,7 +1,13 @@
 MIT License
 
-Copyright (c) 2026 Chris Jahn (ha-frame-starter: theme, frame design)
-Copyright (c) 2026 Gintokii13 (dashboards, frame.js, frame-layout.js, scripts)
+Copyright (c) 2026 Chris Jahn
+  ha-frame-starter (https://github.com/slcr/ha-frame-starter):
+  www/frame/frame.js, the Frame theme, and the button-card templates
+  (frame_* templates) in dashboards/start.yaml
+
+Copyright (c) 2026 Gintokii13
+  Dashboards built on top of it, www/frame/frame-layout.js, the
+  "Frame Haus" theme, scripts and the adaptations of the files above
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

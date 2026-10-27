@@ -1,3 +1,6 @@
+# Kartenvorlagen frame, frame_rail, frame_clock, frame_weather, frame_people, frame_next, frame_agenda,
+# frame_scene, frame_light, frame_cover, frame_lock, frame_openings, frame_rooms, frame_stats,
+# frame_heading und frame_energy nach https://github.com/slcr/ha-frame-starter (Chris Jahn, MIT).
 # Dashboard "Start" (Speicher-Dashboard)
 button_card_templates:
   frame:

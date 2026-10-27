@@ -52,9 +52,23 @@ Einige Karten verlinken auf weitere Dashboards (`/dashboard-kameras`, `/pflanzen
 - Personen und Kalender sind in `dashboards/start.yaml` oben unter `variables` (`people`, `calendars`, `categories`) zentral definiert – dort Namen, Farben und Entitäten eintragen.
 - Die Klima-Ansichten erwarten [Versatile Thermostat](https://github.com/jmcollin78/versatile_thermostat) (`climate.vtherm_*`); die Start-Karte sucht Thermostate über dieses Präfix.
 
+## Herkunft & Credits
+
+Das Frame-Design, die Runtime und die Kartenvorlagen stammen von **Chris Jahn** aus [slcr/ha-frame-starter](https://github.com/slcr/ha-frame-starter) (MIT) – ein großes Danke dafür. Was hier von dort kommt und was neu ist:
+
+| Datei | Herkunft |
+|---|---|
+| `www/frame/frame.js` | **Original von Chris Jahn** – die Frame-Runtime aus ha-frame-starter, Stand [`1becc23`](https://github.com/slcr/ha-frame-starter/commit/1becc23) vom 17.10.2026, gekürzt auf die hier genutzten Helfer. Keine eigenen Änderungen am Code. Neuere Versionen gibt es im Original-Repo. |
+| `themes/frame/frame.yaml` | Theme **Frame** aus ha-frame-starter; **Frame Haus** (für das ganze HA) ist neu darauf aufgebaut. |
+| `dashboards/start.yaml` | 16 der 23 Kartenvorlagen (`button_card_templates`) stammen aus ha-frame-starter und sind angepasst: `frame`, `frame_rail`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_stats`, `frame_heading`, `frame_energy`. Neu sind `frame_now`, `frame_tile`, `frame_gate`, `frame_news`, `frame_room`, `frame_room_heading`, `frame_lights` sowie Ansichten, Karten und deutsche Texte. |
+| `www/frame/frame-layout.js` | Neu (Erweiterung für layout-card). |
+| `dashboards/uebersicht.yaml`, `klima-heizung.yaml`, `einkauf-liste.yaml`, `scripts/szenen.yaml` | Neu, im Frame-Look gestaltet. |
+
+Wer Frame von Grund auf aufsetzen will, nimmt am besten direkt [ha-frame-starter](https://github.com/slcr/ha-frame-starter) – dort gibt es Setup-Seite, YAML-Generator, Installationsskript und viele optionale Module (Wetterfenster, Kalender, Energie, Timer …).
+
 ## Lizenz
 
-MIT – siehe [`LICENSE`](LICENSE). Design und Theme basieren auf [slcr/ha-frame-starter](https://github.com/slcr/ha-frame-starter) (MIT, © Chris Jahn).
+MIT – siehe [`LICENSE`](LICENSE), mit beiden Urheberhinweisen.
 
 ## Entstehung
 
