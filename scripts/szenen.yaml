@@ -1,0 +1,196 @@
+# Szene-Skripte für die Szenen-Knöpfe (im UI angelegt; Format wie scripts.yaml)
+szene_guten_morgen:
+  alias: Guten Morgen
+  description: 'Szene-Knopf fürs Dashboard, zusammengesetzt aus den Morgen-Automationen: Nachtlicht aus; solange es dunkel ist die Morgenlampen (Komode, Stehlampe WZ, Stehlampe Spielzimmer, Stehlampe Flur);
+    N-JOY in der Küche; nach Sonnenaufgang Rollläden Wohnzimmer/Spielzimmer und Terrassentür auf. Schlaf- und Kinderzimmer bleiben wie gewohnt manuell.'
+  icon: mdi:weather-sunset-up
+  max_exceeded: silent
+  mode: single
+  sequence:
+  - action: light.turn_off
+    data:
+      transition: 5
+    target:
+      entity_id: light.nachtlicht_schlafzimmer
+  - if:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    note: 'Wie ''Morgens – Licht und Radio'': Licht nur, solange es dunkel ist.'
+    then:
+    - action: light.turn_on
+      target:
+        entity_id:
+        - light.wohnzimmer_komode
+        - light.stehlampe_wohnzimmer
+        - light.stehlampe_buro
+    - action: switch.turn_on
+      target:
+        entity_id: switch.stehlampe_flur_2
+  - if:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.kuche
+        state: playing
+    then:
+    - action: media_player.unjoin
+      continue_on_error: true
+      note: Bad aus der Gruppe lösen, damit es nur in der Küche spielt.
+      target:
+        entity_id: media_player.bad
+    - action: media_player.volume_set
+      data:
+        volume_level: 0.16
+      target:
+        entity_id: media_player.kuche
+    - action: media_player.select_source
+      data:
+        source: N-JOY
+      target:
+        entity_id: media_player.kuche
+  - if:
+    - condition: state
+      entity_id: sun.sun
+      state: above_horizon
+    note: 'Wie ''Rollläden EG – morgens einmal auf'' und ''Terrassentür – morgens auf'': erst nach Sonnenaufgang.'
+    then:
+    - action: cover.open_cover
+      continue_on_error: true
+      target:
+        entity_id:
+        - cover.wohnzimmer_links_langsam
+        - cover.wohnzimmer_rechts_langsam
+        - cover.spielzimmer_links_langsam
+        - cover.spielzimmer_rechts_langsam
+    - if:
+      - attribute: current_position
+        below: 95
+        condition: numeric_state
+        entity_id: cover.terrassentur_langsam
+      then:
+      - action: cover.open_cover
+        target:
+          entity_id: cover.terrassentur_langsam
+szene_abend:
+  alias: Abend
+  description: 'Szene-Knopf fürs Dashboard, zusammengesetzt aus den Abend-Automationen: Ambientelicht (Stehlampe WZ und Komode 2300 K, Stehlampe Spielzimmer 2100 K, Treppenhaus-Wandlampe 25 %, Stehlampe
+    Flur), Nachtlicht Schlafzimmer, Schlafraum-Rollläden auf 25 % Lüftungsspalt und Terrassentür zu (nur wenn die Tür geschlossen ist). Setzt die Tagesmerker der Ambiente-Automation, damit sie später nicht
+    noch einmal schaltet.'
+  icon: mdi:sofa-outline
+  max_exceeded: silent
+  mode: single
+  sequence:
+  - action: light.turn_on
+    data:
+      brightness_pct: 100
+      color_temp_kelvin: 2300
+      transition: 3
+    target:
+      entity_id:
+      - light.stehlampe_wohnzimmer
+      - light.wohnzimmer_komode
+  - action: light.turn_on
+    data:
+      brightness_pct: 100
+      color_temp_kelvin: 2100
+      transition: 3
+    target:
+      entity_id: light.stehlampe_buro
+  - action: light.turn_on
+    data:
+      brightness_pct: 25
+      transition: 3
+    note: Durchgangslicht, bewusst gedimmt.
+    target:
+      entity_id: light.treppenhaus_wandlampe
+  - action: switch.turn_on
+    target:
+      entity_id: switch.stehlampe_flur_2
+  - action: light.turn_on
+    data:
+      transition: 5
+    note: Ohne Farbwerte – die Lampe behält ihre letzte Einstellung (wie 'Nachtlicht AN').
+    target:
+      entity_id: light.nachtlicht_schlafzimmer
+  - action: input_boolean.turn_on
+    target:
+      entity_id:
+      - input_boolean.ambientelicht_heute_gelaufen
+      - input_boolean.ambientelicht_buro_heute_gelaufen
+  - action: script.turn_on
+    data:
+      variables:
+        position: 25
+    note: Wie 'Schlafräume abends – Lüftungsspalt'; blockiert nicht.
+    target:
+      entity_id: script.rolllaeden_schlafraeume_nacht
+  - if:
+    - condition: state
+      entity_id: binary_sensor.kontakt_terrassentur_contact
+      state: 'off'
+    note: 'Aussperrschutz: nur bei geschlossener Tür.'
+    then:
+    - action: cover.close_cover
+      target:
+        entity_id: cover.terrassentur_langsam
+szene_gute_nacht:
+  alias: Gute Nacht
+  description: 'Szene-Knopf fürs Dashboard: alle Innenlichter (Label ''Innenlicht'') aus außer dem Nachtlicht im Schlafzimmer, das an geht; Musik in Küche, Wohnzimmer, Bad und Treppenhaus pausieren; Schlafraum-Rollläden
+    auf den Nachtspalt (10 %); Terrassentür zu, wenn die Tür geschlossen ist.'
+  icon: mdi:weather-night
+  max_exceeded: silent
+  mode: single
+  sequence:
+  - action: light.turn_on
+    data:
+      transition: 5
+    target:
+      entity_id: light.nachtlicht_schlafzimmer
+  - action: light.turn_off
+    data:
+      transition: 5
+    note: Label 'Innenlicht' ohne das Nachtlicht – ein Ziel kann keine Ausnahme ausdrücken.
+    target:
+      entity_id: '{{ label_entities(''innenlicht'') | select(''match'', ''light\.'') | reject(''eq'', ''light.nachtlicht_schlafzimmer'') | list }}'
+  - action: switch.turn_off
+    target:
+      entity_id: switch.stehlampe_flur_2
+  - variables:
+      spielt: '{{ [''media_player.kuche'', ''media_player.wohnzimmer'', ''media_player.bad'', ''media_player.treppenhaus''] | select(''is_state'', ''playing'') | list }}'
+  - if:
+    - condition: template
+      value_template: '{{ spielt | count > 0 }}'
+    then:
+    - action: media_player.media_pause
+      continue_on_error: true
+      target:
+        entity_id: '{{ spielt }}'
+  - action: script.turn_on
+    note: Ohne Position = Nachtspalt 10 %.
+    target:
+      entity_id: script.rolllaeden_schlafraeume_nacht
+  - if:
+    - condition: state
+      entity_id: binary_sensor.kontakt_terrassentur_contact
+      state: 'off'
+    note: 'Aussperrschutz: nur bei geschlossener Tür.'
+    then:
+    - action: cover.close_cover
+      target:
+        entity_id: cover.terrassentur_langsam
+szene_alles_aus:
+  alias: Alles aus
+  description: 'Szene-Knopf fürs Dashboard: alle Innenlichter (Label ''Innenlicht'', inkl. Stehlampe Flur am Shelly) aus – dasselbe, was ''Alle weg – Innenlicht aus'' beim Verlassen macht.'
+  icon: mdi:lightbulb-group-off-outline
+  max_exceeded: silent
+  mode: single
+  sequence:
+  - action: light.turn_off
+    data:
+      transition: 2
+    target:
+      label_id: innenlicht
+  - action: switch.turn_off
+    target:
+      label_id: innenlicht

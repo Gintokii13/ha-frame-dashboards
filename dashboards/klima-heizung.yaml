@@ -1,0 +1,1221 @@
+# Dashboard "Klima & Heizung" (Speicher-Dashboard)
+views:
+- title: Anlage
+  path: anlage
+  icon: mdi:heat-pump
+  type: sections
+  max_columns: 4
+  theme: Frame Haus
+  badges:
+  - type: entity
+    entity: sensor.aussentemperatur
+    name: Außen
+    show_name: true
+    color: cyan
+  - type: entity
+    entity: sensor.wp_cop_aktuell
+    name: COP
+    show_name: true
+    color: green
+  - type: entity
+    entity: sensor.heizstab_leistung
+    name: Heizstab
+    show_name: true
+    color: amber
+  - type: entity
+    entity: sensor.digin_stoerungen
+    name: Störungen
+    show_name: true
+    color: red
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Wärmepumpe
+      icon: mdi:heat-pump
+      heading_style: title
+    - type: tile
+      entity: sensor.warmepumpenleistung
+      name: Thermische Leistung
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmepumpenleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - type: tile
+      entity: sensor.wp_leistungsaufnahme
+      name: Elektrische Leistung
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wp_leistungsaufnahme'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.wp_cop_aktuell
+      name: COP aktuell
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wp_cop_aktuell'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.aussentemperatur
+      name: Außen
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.aussentemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Temperaturen
+      icon: mdi:thermometer-lines
+      heading_style: title
+    - type: tile
+      entity: sensor.warmwasserpuffer
+      name: Warmwasserpuffer
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmwasserpuffer'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.warmwassertemperatur
+      name: Warmwasser
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmwassertemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.ww_solltemperatur
+      name: Warmwasser Soll
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.ww_solltemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - type: tile
+      entity: sensor.heizungspuffertemperatur_oben
+      name: Puffer oben
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.heizungspuffertemperatur_oben'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - type: tile
+      entity: sensor.heizungspuffertemperatur_unten
+      name: Puffer unten
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.heizungspuffertemperatur_unten'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - type: tile
+      entity: sensor.vorlauftemperatur
+      name: Vorlauf
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.vorlauftemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - type: tile
+      entity: sensor.kaltwassertemperatur
+      name: Kaltwasser
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.kaltwassertemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.heizstab_leistung
+      name: Heizstab (Solvis-PV)
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.heizstab_leistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Kennzahlen
+      icon: mdi:gauge
+      heading_style: title
+    - type: gauge
+      entity: sensor.warmwassertemperatur
+      name: Warmwasser
+      min: 0
+      max: 70
+      grid_options:
+        columns: 6
+        rows: 3
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmwassertemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: gauge
+      entity: sensor.heizungspuffertemperatur_oben
+      name: Puffer oben
+      min: 0
+      max: 70
+      grid_options:
+        columns: 6
+        rows: 3
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.heizungspuffertemperatur_oben'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - type: gauge
+      entity: sensor.heizungspuffertemperatur_unten
+      name: Puffer unten
+      min: 0
+      max: 70
+      grid_options:
+        columns: 6
+        rows: 3
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.heizungspuffertemperatur_unten'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - type: gauge
+      entity: sensor.wp_cop_aktuell
+      name: COP
+      min: 0
+      max: 10
+      grid_options:
+        columns: 6
+        rows: 3
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wp_cop_aktuell'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Pumpen & Signale
+      icon: mdi:pump
+      heading_style: title
+    - type: tile
+      entity: sensor.a01_pumpe_zirkulation
+      name: Zirkulation
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.a01_pumpe_zirkulation'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.a02_pumpe_warmwasser
+      name: Warmwasserpumpe
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.a02_pumpe_warmwasser'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.a03_pumpe_hk1
+      name: Heizkreispumpe
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.a03_pumpe_hk1'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.zirkulationsdurchfluss
+      name: Zirkulationsdurchfluss
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.zirkulationsdurchfluss'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.zirkulation_betriebsart
+      name: Zirkulation Modus
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.zirkulation_betriebsart'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.hkr1_betriebsart
+      name: HKR1 Modus
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.hkr1_betriebsart'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Leistung & COP – 24 h
+      icon: mdi:chart-line
+      heading_style: title
+    - type: history-graph
+      title: Wärmepumpe
+      hours_to_show: 24
+      entities:
+      - entity: sensor.warmepumpenleistung
+        name: Thermisch
+      - entity: sensor.wp_leistungsaufnahme
+        name: Elektrisch
+      - entity: sensor.wp_cop_aktuell
+        name: COP
+      grid_options:
+        columns: full
+        rows: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Strom – 14 Tage
+      icon: mdi:lightning-bolt
+      heading_style: title
+    - type: statistics-graph
+      title: Wärmepumpe & Heizstab je Tag
+      chart_type: bar
+      period: day
+      days_to_show: 14
+      stat_types:
+      - change
+      entities:
+      - entity: sensor.wp_stromverbrauch
+        name: Wärmepumpe
+      - entity: sensor.heizstab_energie_riemann
+        name: Heizstab
+      grid_options:
+        columns: full
+        rows: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+- title: Räume
+  path: raeume
+  icon: mdi:thermostat
+  type: sections
+  max_columns: 3
+  theme: Frame Haus
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Erdgeschoss
+      icon: mdi:home-floor-0
+      heading_style: title
+    - type: tile
+      entity: climate.vtherm_wohnzimmer
+      name: Wohnzimmer
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_kuche
+      name: Küche
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_kuche'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_eingang
+      name: Eingang
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_eingang'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_gaste_wc
+      name: Gäste WC
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_gaste_wc'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_vorraum
+      name: Vorraum
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_vorraum'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_buro
+      name: Spielzimmer
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_buro'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Treppenhaus & Keller
+      icon: mdi:stairs
+      heading_style: title
+    - type: tile
+      entity: climate.vtherm_treppenhaus
+      name: Treppenhaus
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_treppenhaus'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_waschkuche
+      name: Waschküche
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_waschkuche'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_buro_1
+      name: Büro 1
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_buro_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Obergeschoss
+      icon: mdi:home-floor-1
+      heading_style: title
+    - type: tile
+      entity: climate.vtherm_schlafzimmer
+      name: Schlafzimmer
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_schlafzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_kinderzimmer
+      name: Kinderzimmer
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_kinderzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_badezimmer
+      name: Badezimmer
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_badezimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_ankleidezimmer
+      name: Ankleidezimmer
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_ankleidezimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.vtherm_buro_2
+      name: Büro 2
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_buro_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Gruppen
+      icon: mdi:thermostat-box
+      heading_style: subtitle
+    - type: tile
+      entity: climate.kuche_gesamt
+      name: Küche gesamt
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.kuche_gesamt'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.wohnzimmer_gesamt
+      name: Wohnzimmer gesamt
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.wohnzimmer_gesamt'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: climate.treppenhaus_gesamt
+      name: Treppenhaus gesamt
+      grid_options:
+        columns: 6
+      features:
+      - type: target-temperature
+      - type: climate-hvac-modes
+        hvac_modes:
+        - auto
+        - heat
+        - 'off'
+        style: icons
+      - type: climate-preset-modes
+        preset_modes:
+        - comfort
+        - eco
+        - boost
+        style: dropdown
+      features_position: bottom
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.treppenhaus_gesamt'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+- title: Raumklima
+  path: raumklima
+  icon: mdi:water-percent
+  type: sections
+  max_columns: 3
+  theme: Frame Haus
+  sections:
+  - type: grid
+    column_span: 3
+    cards:
+    - type: heading
+      heading: Lüften
+      icon: mdi:window-open-variant
+      heading_style: title
+    - type: tile
+      entity: binary_sensor.luften_sinnvoll_erdgeschoss
+      name: Erdgeschoss
+      grid_options:
+        columns: 4
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.luften_sinnvoll_erdgeschoss'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: binary_sensor.luften_sinnvoll_obergeschoss
+      name: Obergeschoss
+      grid_options:
+        columns: 4
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.luften_sinnvoll_obergeschoss'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: binary_sensor.luften_sinnvoll_keller
+      name: Keller
+      grid_options:
+        columns: 4
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.luften_sinnvoll_keller'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: sensor.aussen_temperature
+      name: Außen
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.aussen_temperature'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - type: tile
+      entity: sensor.aussen_humidity
+      name: Außen Feuchte
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.aussen_humidity'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Erdgeschoss
+      icon: mdi:home-floor-0
+      heading_style: title
+    - type: custom:mushroom-template-card
+      entity: sensor.wohnzimmer_humidity
+      primary: Wohnzimmer
+      secondary: '{{ states(''sensor.wohnzimmer_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.wohnzimmer_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.wohnzimmer_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.wohnzimmer_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.kuche_humidity
+      primary: Küche
+      secondary: '{{ states(''sensor.kuche_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.kuche_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.kuche_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.kuche_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.buro_humidity
+      primary: Spielzimmer
+      secondary: '{{ states(''sensor.buro_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.buro_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.buro_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.buro_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.gaste_wc_humidity
+      primary: Gäste WC
+      secondary: '{{ states(''sensor.gaste_wc_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.gaste_wc_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.gaste_wc_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.gaste_wc_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.eingang_humidity
+      primary: Eingang
+      secondary: '{{ states(''sensor.eingang_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.eingang_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.eingang_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.eingang_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.vorraum_humidity
+      primary: Vorraum
+      secondary: '{{ states(''sensor.vorraum_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.vorraum_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.vorraum_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.vorraum_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Obergeschoss
+      icon: mdi:home-floor-1
+      heading_style: title
+    - type: custom:mushroom-template-card
+      entity: sensor.schlafzimmer_humidity
+      primary: Schlafzimmer
+      secondary: '{{ states(''sensor.schlafzimmer_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.schlafzimmer_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.schlafzimmer_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.schlafzimmer_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.kinderzimmer_humidity
+      primary: Kinderzimmer
+      secondary: '{{ states(''sensor.kinderzimmer_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.kinderzimmer_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.kinderzimmer_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.kinderzimmer_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.buro_2_humidity
+      primary: Büro 2
+      secondary: '{{ states(''sensor.buro_2_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.buro_2_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.buro_2_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.buro_2_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.treppenhaus_humidity
+      primary: Treppenhaus
+      secondary: '{{ states(''sensor.treppenhaus_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.treppenhaus_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.treppenhaus_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.treppenhaus_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.ankleidezimmer_humidity
+      primary: Ankleidezimmer
+      secondary: '{{ states(''sensor.ankleidezimmer_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.ankleidezimmer_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.ankleidezimmer_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.ankleidezimmer_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.badezimmer_humidity
+      primary: Badezimmer
+      secondary: '{{ states(''sensor.badezimmer_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.badezimmer_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.badezimmer_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.badezimmer_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Keller & Technik
+      icon: mdi:home-floor-b
+      heading_style: title
+    - type: custom:mushroom-template-card
+      entity: sensor.keller_humidity
+      primary: Keller
+      secondary: '{{ states(''sensor.keller_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.keller_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.keller_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.keller_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.keller_wand_humidity
+      primary: Keller Wand
+      secondary: '{{ states(''sensor.keller_wand_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.keller_wand_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.keller_wand_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.keller_wand_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.elektroraum_humidity
+      primary: Elektroraum
+      secondary: '{{ states(''sensor.elektroraum_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.elektroraum_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.elektroraum_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.elektroraum_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: custom:mushroom-template-card
+      entity: sensor.heizungsraum_humidity
+      primary: Heizungsraum
+      secondary: '{{ states(''sensor.heizungsraum_temperature'') | float(0) | round(1) }} °C · {{ states(''sensor.heizungsraum_humidity'') | float(0) | round(0) | int }} % · {{ states(''sensor.heizungsraum_absolute_feuchte'')
+        | float(0) | round(1) }} g/m³'
+      icon: mdi:water-percent
+      icon_color: '{% set h = states(''sensor.heizungsraum_humidity'') | float(0) %}{{ ''red'' if h > 65 else (''amber'' if h > 60 else ''green'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: tile
+      entity: sensor.mold_indicator
+      name: Schimmelindikator
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.mold_indicator'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: history-graph
+      title: Schimmelindikator 48 h
+      hours_to_show: 48
+      entities:
+      - entity: sensor.mold_indicator
+        name: Schimmelrisiko
+      grid_options:
+        columns: full
+        rows: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+- title: Warmwasser
+  path: warmwasser
+  icon: mdi:water-thermometer
+  type: sections
+  max_columns: 3
+  theme: Frame Haus
+  sections:
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Warmwasser & Speicher
+      icon: mdi:water-thermometer
+      heading_style: title
+    - type: tile
+      entity: sensor.warmwasserpuffer
+      name: Warmwasserpuffer
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmwasserpuffer'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.warmwassertemperatur
+      name: Warmwasser
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmwassertemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.speicherreferenztemperatur
+      name: Speicherreferenz
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.speicherreferenztemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    - type: tile
+      entity: sensor.ww_solltemperatur
+      name: Solltemperatur
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.ww_solltemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - type: tile
+      entity: sensor.heizstab_leistung
+      name: Heizstab
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.heizstab_leistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - type: tile
+      entity: switch.warmwasser_nachheizen
+      name: Nachheizen (Solvis)
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.warmwasser_nachheizen'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Verlauf – 48 h
+      icon: mdi:chart-line
+      heading_style: title
+    - type: history-graph
+      title: Warmwasser
+      hours_to_show: 48
+      entities:
+      - entity: sensor.warmwassertemperatur
+        name: Warmwasser
+      - entity: sensor.warmwasserpuffer
+        name: Puffer
+      - entity: sensor.speicherreferenztemperatur
+        name: Speicherreferenz
+      - entity: sensor.ww_solltemperatur
+        name: Soll
+      grid_options:
+        columns: full
+        rows: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: history-graph
+      title: Heizstab
+      hours_to_show: 48
+      entities:
+      - entity: sensor.heizstab_leistung
+        name: Heizstab
+      grid_options:
+        columns: full
+        rows: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+- title: Technik
+  path: technik
+  icon: mdi:cog
+  type: sections
+  max_columns: 3
+  theme: Frame Haus
+  sections:
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Heizkreis 1
+      icon: mdi:radiator
+      heading_style: title
+    - type: tile
+      entity: sensor.hkr1_solltemperatur_tag
+      name: Soll Tag
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.hkr1_solltemperatur_tag'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - type: tile
+      entity: sensor.hkr1_absenktemperatur_nacht
+      name: Absenkung Nacht
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.hkr1_absenktemperatur_nacht'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    - type: tile
+      entity: sensor.hkr1_betriebsart
+      name: Betriebsart
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.hkr1_betriebsart'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.vorlauftemperatur
+      name: Vorlauf
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.vorlauftemperatur'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+  - type: grid
+    column_span: 1
+    cards:
+    - type: heading
+      heading: Solvis
+      icon: mdi:information-outline
+      heading_style: title
+    - type: tile
+      entity: sensor.versionsc2
+      name: Version SC2
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.versionsc2'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.versionnbg
+      name: Version NBG
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.versionnbg'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - type: tile
+      entity: sensor.digin_stoerungen
+      name: Störungen
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.digin_stoerungen'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+  - type: grid
+    column_span: 3
+    cards:
+    - type: heading
+      heading: Pumpen – 24 h
+      icon: mdi:pump
+      heading_style: title
+    - type: history-graph
+      title: Pumpen und Durchfluss
+      hours_to_show: 24
+      entities:
+      - entity: sensor.a01_pumpe_zirkulation
+        name: A01 Zirkulation
+      - entity: sensor.a02_pumpe_warmwasser
+        name: A02 Warmwasser
+      - entity: sensor.a03_pumpe_hk1
+        name: A03 Heizkreis
+      - entity: sensor.zirkulationsdurchfluss
+        name: Zirkulationsdurchfluss
+      grid_options:
+        columns: full
+        rows: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'

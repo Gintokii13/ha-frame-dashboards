@@ -1,0 +1,1401 @@
+# Dashboard "Einkauf" (Speicher-Dashboard)
+views:
+- icon: mdi:cart
+  max_columns: 2
+  path: start
+  sections:
+  - cards:
+    - heading: Wo stehst du gerade?
+      icon: mdi:map-marker
+      type: heading
+    - fill_container: true
+      grid_options:
+        columns: 4
+        rows: 2
+      icon: mdi:fridge
+      icon_color: blue
+      layout: vertical
+      primary: Kühlschrank
+      secondary: 19 Artikel
+      tap_action:
+        action: navigate
+        navigation_path: /einkauf-liste/kuehlschrank
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(56,189,248,0.14); } '
+    - fill_container: true
+      grid_options:
+        columns: 4
+        rows: 2
+      icon: mdi:cupboard
+      icon_color: brown
+      layout: vertical
+      primary: Vorrat
+      secondary: 13 Artikel
+      tap_action:
+        action: navigate
+        navigation_path: /einkauf-liste/vorrat
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(180,120,70,0.14); } '
+    - fill_container: true
+      grid_options:
+        columns: 4
+        rows: 2
+      icon: mdi:snowflake
+      icon_color: cyan
+      layout: vertical
+      primary: Tiefkühler
+      secondary: 8 Artikel
+      tap_action:
+        action: navigate
+        navigation_path: /einkauf-liste/tiefkuehler
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(34,211,238,0.14); } '
+    - fill_container: true
+      grid_options:
+        columns: 4
+        rows: 2
+      icon: mdi:bread-slice
+      icon_color: orange
+      layout: vertical
+      primary: Küche
+      secondary: Brot & Obst
+      tap_action:
+        action: navigate
+        navigation_path: /einkauf-liste/kueche
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(251,146,60,0.14); } '
+    - fill_container: true
+      grid_options:
+        columns: 4
+        rows: 2
+      icon: mdi:shower
+      icon_color: purple
+      layout: vertical
+      primary: Drogerie
+      secondary: Bad & Putzen
+      tap_action:
+        action: navigate
+        navigation_path: /einkauf-liste/drogerie
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(167,139,250,0.14); } '
+    - fill_container: true
+      grid_options:
+        columns: 4
+        rows: 2
+      icon: mdi:broom
+      icon_color: grey
+      layout: vertical
+      primary: Erledigtes aufräumen
+      tap_action:
+        action: perform-action
+        confirmation:
+          text: Abgehakte Einträge entfernen?
+        perform_action: todo.remove_completed_items
+        target:
+          entity_id: todo.einkaufsliste
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: var(--card-background-color); } '
+    type: grid
+  - cards:
+    - badges:
+      - entity: todo.einkaufsliste
+        show_name: false
+        show_state: true
+        type: entity
+      heading: Auf der Liste
+      icon: mdi:format-list-checks
+      type: heading
+    - entity: todo.einkaufsliste
+      grid_options:
+        columns: full
+      type: todo-list
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  title: Einkauf
+  type: sections
+  theme: Frame Haus
+- back_path: /einkauf-liste/start
+  icon: mdi:fridge
+  max_columns: 2
+  path: kuehlschrank
+  sections:
+  - cards:
+    - heading: Kühlschrank
+      icon: mdi:fridge
+      type: heading
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_kase'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|käse|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Käse
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Käse
+          zaehler: counter.einkauf_kase
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|käse|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_eier'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|eier|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Eier
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Eier
+          zaehler: counter.einkauf_eier
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|eier|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_hackfleisch'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|hackfleisch|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Hackfleisch
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Hackfleisch
+          zaehler: counter.einkauf_hackfleisch
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|hackfleisch|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_bacon'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|bacon|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Bacon
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Bacon
+          zaehler: counter.einkauf_bacon
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|bacon|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_beeren'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|beeren|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Beeren
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Beeren
+          zaehler: counter.einkauf_beeren
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|beeren|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_aufschnitt'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|aufschnitt|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Aufschnitt
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Aufschnitt
+          zaehler: counter.einkauf_aufschnitt
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|aufschnitt|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_butter'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|butter|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Butter
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Butter
+          zaehler: counter.einkauf_butter
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|butter|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_gurke'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|gurke|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Gurke
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Gurke
+          zaehler: counter.einkauf_gurke
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|gurke|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_mozzarella'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|mozzarella|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Mozzarella
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Mozzarella
+          zaehler: counter.einkauf_mozzarella
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|mozzarella|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_reibekase'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|reibekäse|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Reibekäse
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Reibekäse
+          zaehler: counter.einkauf_reibekase
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|reibekäse|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_sahne'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|sahne|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Sahne
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Sahne
+          zaehler: counter.einkauf_sahne
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|sahne|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_schinkenwurfel'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|schinkenwürfel|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Schinkenwürfel
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Schinkenwürfel
+          zaehler: counter.einkauf_schinkenwurfel
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|schinkenwürfel|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_frischkase'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|frischkäse|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Frischkäse
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Frischkäse
+          zaehler: counter.einkauf_frischkase
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|frischkäse|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_joghurt'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|joghurt|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Joghurt
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Joghurt
+          zaehler: counter.einkauf_joghurt
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|joghurt|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_quark'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|quark|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Quark
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Quark
+          zaehler: counter.einkauf_quark
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|quark|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_fleischwurst'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|fleischwurst|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Fleischwurst
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Fleischwurst
+          zaehler: counter.einkauf_fleischwurst
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|fleischwurst|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_porree'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|porree|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Porree
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Porree
+          zaehler: counter.einkauf_porree
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|porree|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_avocado'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|avocado|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Avocado
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Avocado
+          zaehler: counter.einkauf_avocado
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|avocado|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_saft'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|saft|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Saft
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Saft
+          zaehler: counter.einkauf_saft
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|saft|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Etwas anderes
+      heading_style: subtitle
+      icon: mdi:pencil-plus
+      type: heading
+    - entities:
+      - entity: input_text.einkauf_freitext_kuhlschrank
+        name: Eintippen und Enter
+      grid_options:
+        columns: full
+      type: entities
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - heading: Auf der Liste
+      heading_style: subtitle
+      icon: mdi:format-list-checks
+      type: heading
+    - entity: todo.einkaufsliste
+      grid_options:
+        columns: full
+      type: todo-list
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  subview: true
+  title: Kühlschrank
+  type: sections
+  theme: Frame Haus
+- back_path: /einkauf-liste/start
+  icon: mdi:cupboard
+  max_columns: 2
+  path: vorrat
+  sections:
+  - cards:
+    - heading: Vorratsschrank
+      icon: mdi:cupboard
+      type: heading
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_milch'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|milch|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Milch
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Milch
+          zaehler: counter.einkauf_milch
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|milch|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_cola'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|cola|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Cola
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Cola
+          zaehler: counter.einkauf_cola
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|cola|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_kiste_wasser'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|kiste wasser|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Kiste Wasser
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Kiste Wasser
+          zaehler: counter.einkauf_kiste_wasser
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|kiste wasser|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_nudeln'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|nudeln|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Nudeln
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Nudeln
+          zaehler: counter.einkauf_nudeln
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|nudeln|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_reis'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|reis|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Reis
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Reis
+          zaehler: counter.einkauf_reis
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|reis|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_mehl'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|mehl|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Mehl
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Mehl
+          zaehler: counter.einkauf_mehl
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|mehl|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_wraps'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|wraps|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Wraps
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Wraps
+          zaehler: counter.einkauf_wraps
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|wraps|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_mais_dose'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|mais dose|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Mais Dose
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Mais Dose
+          zaehler: counter.einkauf_mais_dose
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|mais dose|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_erbsen_dose'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|erbsen dose|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Erbsen Dose
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Erbsen Dose
+          zaehler: counter.einkauf_erbsen_dose
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|erbsen dose|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_kidneybohnen_dose'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|kidneybohnen dose|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Kidneybohnen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Kidneybohnen Dose
+          zaehler: counter.einkauf_kidneybohnen_dose
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|kidneybohnen dose|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_brechbohnen_dose'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|brechbohnen dose|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Brechbohnen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Brechbohnen Dose
+          zaehler: counter.einkauf_brechbohnen_dose
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|brechbohnen dose|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_passierte_tomaten'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|passierte tomaten|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Passierte Tomaten
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Passierte Tomaten
+          zaehler: counter.einkauf_passierte_tomaten
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|passierte tomaten|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_isodrink'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|isodrink|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Isodrink
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Isodrink
+          zaehler: counter.einkauf_isodrink
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|isodrink|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Etwas anderes
+      heading_style: subtitle
+      icon: mdi:pencil-plus
+      type: heading
+    - entities:
+      - entity: input_text.einkauf_freitext_vorratsschrank
+        name: Eintippen und Enter
+      grid_options:
+        columns: full
+      type: entities
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - heading: Auf der Liste
+      heading_style: subtitle
+      icon: mdi:format-list-checks
+      type: heading
+    - entity: todo.einkaufsliste
+      grid_options:
+        columns: full
+      type: todo-list
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  subview: true
+  title: Vorrat
+  type: sections
+  theme: Frame Haus
+- back_path: /einkauf-liste/start
+  icon: mdi:snowflake
+  max_columns: 2
+  path: tiefkuehler
+  sections:
+  - cards:
+    - heading: Tiefkühler
+      icon: mdi:snowflake
+      type: heading
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_pommes'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|pommes|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Pommes
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Pommes
+          zaehler: counter.einkauf_pommes
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|pommes|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_tk_gemuse'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|tk gemüse|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: TK Gemüse
+      tap_action:
+        action: perform-action
+        data:
+          artikel: TK Gemüse
+          zaehler: counter.einkauf_tk_gemuse
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|tk gemüse|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_erbsen_tk'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|erbsen tk|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Erbsen TK
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Erbsen TK
+          zaehler: counter.einkauf_erbsen_tk
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|erbsen tk|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_aufbackbrotchen'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|aufbackbrötchen|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Aufbackbrötchen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Aufbackbrötchen
+          zaehler: counter.einkauf_aufbackbrotchen
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|aufbackbrötchen|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_pizza'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|pizza|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Pizza
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Pizza
+          zaehler: counter.einkauf_pizza
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|pizza|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_fischstabchen'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|fischstäbchen|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Fischstäbchen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Fischstäbchen
+          zaehler: counter.einkauf_fischstabchen
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|fischstäbchen|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_beeren_tk'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|beeren tk|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Beeren TK
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Beeren TK
+          zaehler: counter.einkauf_beeren_tk
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|beeren tk|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_eis'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|eis|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Eis
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Eis
+          zaehler: counter.einkauf_eis
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|eis|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Etwas anderes
+      heading_style: subtitle
+      icon: mdi:pencil-plus
+      type: heading
+    - entities:
+      - entity: input_text.einkauf_freitext_tiefkuhler
+        name: Eintippen und Enter
+      grid_options:
+        columns: full
+      type: entities
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - heading: Auf der Liste
+      heading_style: subtitle
+      icon: mdi:format-list-checks
+      type: heading
+    - entity: todo.einkaufsliste
+      grid_options:
+        columns: full
+      type: todo-list
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  subview: true
+  title: Tiefkühler
+  type: sections
+  theme: Frame Haus
+- back_path: /einkauf-liste/start
+  icon: mdi:bread-slice
+  max_columns: 2
+  path: kueche
+  sections:
+  - cards:
+    - heading: Küche – Brot & Obst
+      icon: mdi:bread-slice
+      type: heading
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_toast'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|toast|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Toast
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Toast
+          zaehler: counter.einkauf_toast
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|toast|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_brotchen'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|brötchen|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Brötchen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Brötchen
+          zaehler: counter.einkauf_brotchen
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|brötchen|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_salat'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|salat|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Salat
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Salat
+          zaehler: counter.einkauf_salat
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|salat|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_tomaten'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|tomaten|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Tomaten
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Tomaten
+          zaehler: counter.einkauf_tomaten
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|tomaten|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_kartoffeln'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|kartoffeln|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Kartoffeln
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Kartoffeln
+          zaehler: counter.einkauf_kartoffeln
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|kartoffeln|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_zwiebeln'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|zwiebeln|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Zwiebeln
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Zwiebeln
+          zaehler: counter.einkauf_zwiebeln
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|zwiebeln|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_trauben'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|trauben|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Trauben
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Trauben
+          zaehler: counter.einkauf_trauben
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|trauben|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_zitronen'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|zitronen|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Zitronen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Zitronen
+          zaehler: counter.einkauf_zitronen
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|zitronen|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_bananen'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|bananen|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Bananen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Bananen
+          zaehler: counter.einkauf_bananen
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|bananen|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_apfel'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|äpfel|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Äpfel
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Äpfel
+          zaehler: counter.einkauf_apfel
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|äpfel|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_brot'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|brot|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Brot
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Brot
+          zaehler: counter.einkauf_brot
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|brot|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_orangen'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|orangen|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Orangen
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Orangen
+          zaehler: counter.einkauf_orangen
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|orangen|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_knoblauch'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|knoblauch|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Knoblauch
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Knoblauch
+          zaehler: counter.einkauf_knoblauch
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|knoblauch|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Etwas anderes
+      heading_style: subtitle
+      icon: mdi:pencil-plus
+      type: heading
+    - entities:
+      - entity: input_text.einkauf_freitext_kuche
+        name: Eintippen und Enter
+      grid_options:
+        columns: full
+      type: entities
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - heading: Auf der Liste
+      heading_style: subtitle
+      icon: mdi:format-list-checks
+      type: heading
+    - entity: todo.einkaufsliste
+      grid_options:
+        columns: full
+      type: todo-list
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  subview: true
+  title: Küche
+  type: sections
+  theme: Frame Haus
+- back_path: /einkauf-liste/start
+  icon: mdi:shower
+  max_columns: 2
+  path: drogerie
+  sections:
+  - cards:
+    - heading: Bad & Drogerie
+      icon: mdi:shower
+      type: heading
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_klopapier'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|klopapier|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Klopapier
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Klopapier
+          zaehler: counter.einkauf_klopapier
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|klopapier|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_kuchenrolle'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|küchenrolle|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Küchenrolle
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Küchenrolle
+          zaehler: counter.einkauf_kuchenrolle
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|küchenrolle|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_spulmittel'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|spülmittel|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Spülmittel
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Spülmittel
+          zaehler: counter.einkauf_spulmittel
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|spülmittel|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_spulmaschinentabs'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|spülmaschinentabs|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Spülmaschinentabs
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Spülmaschinentabs
+          zaehler: counter.einkauf_spulmaschinentabs
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|spülmaschinentabs|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_waschmittel'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|waschmittel|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Waschmittel
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Waschmittel
+          zaehler: counter.einkauf_waschmittel
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|waschmittel|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_mullbeutel'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|müllbeutel|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Müllbeutel
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Müllbeutel
+          zaehler: counter.einkauf_mullbeutel
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|müllbeutel|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_taschentucher'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|taschentücher|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Taschentücher
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Taschentücher
+          zaehler: counter.einkauf_taschentucher
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|taschentücher|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_zahnpasta'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|zahnpasta|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Zahnpasta
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Zahnpasta
+          zaehler: counter.einkauf_zahnpasta
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|zahnpasta|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_duschgel'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|duschgel|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Duschgel
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Duschgel
+          zaehler: counter.einkauf_duschgel
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|duschgel|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_shampoo'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|shampoo|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Shampoo
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Shampoo
+          zaehler: counter.einkauf_shampoo
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|shampoo|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    - fill_container: true
+      grid_options:
+        columns: 3
+        rows: 2
+      icon: '{{ state_attr(''counter.einkauf_deo'',''icon'') }}'
+      icon_color: '{{ ''green'' if ''|deo|'' in states(''input_text.einkauf_liste_cache'') else ''grey'' }}'
+      layout: vertical
+      primary: Deo
+      tap_action:
+        action: perform-action
+        data:
+          artikel: Deo
+          zaehler: counter.einkauf_deo
+        perform_action: script.einkauf_artikel_umschalten
+      type: custom:mushroom-template-card
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if ''|deo|'' in states(''input_text.einkauf_liste_cache'') %} background: rgba(34,197,94,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Etwas anderes
+      heading_style: subtitle
+      icon: mdi:pencil-plus
+      type: heading
+    - entities:
+      - entity: input_text.einkauf_freitext_drogerie
+        name: Eintippen und Enter
+      grid_options:
+        columns: full
+      type: entities
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - heading: Auf der Liste
+      heading_style: subtitle
+      icon: mdi:format-list-checks
+      type: heading
+    - entity: todo.einkaufsliste
+      grid_options:
+        columns: full
+      type: todo-list
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  subview: true
+  title: Drogerie
+  type: sections
+  theme: Frame Haus

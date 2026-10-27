@@ -1,0 +1,2846 @@
+# Dashboard "Übersicht" (Speicher-Dashboard)
+views:
+- badges:
+  - entity: person.person_1
+    show_state: true
+    type: entity
+  - entity: person.person_2
+    show_state: true
+    type: entity
+  - color: cyan
+    entity: sensor.aussen_temperature
+    name: Außen
+    type: entity
+  - color: amber
+    entity: sensor.wechselrichter_wirkleistung
+    name: PV
+    type: entity
+  - color: pink
+    entity: sensor.stromzahler_wirkleistung
+    name: Netz
+    type: entity
+  - type: entity
+    entity: sensor.teamspeak_nutzer_online
+    name: TS
+    color: green
+    show_state: true
+  header:
+    badges_position: top
+    card:
+      content: |-
+        # {{ now().strftime('%H:%M') }}
+        ### {% set h = now().hour %}{{ 'Guten Morgen' if 5 <= h < 11 else ('Guten Tag' if 11 <= h < 18 else ('Guten Abend' if 18 <= h < 23 else 'Gute Nacht')) }}, Person 1
+        {{ ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][(now().weekday()+1) % 7] }}, {{ now().strftime('%d.%m.%Y') }} · {{ state_attr('weather.forecast_home','temperature') | round(0) }} °C · {{ states('sensor.wechselrichter_wirkleistung') | int(0) }} W PV
+      text_only: true
+      type: markdown
+    layout: responsive
+  icon: mdi:home
+  max_columns: 4
+  path: start
+  sections:
+  - cards:
+    - heading: Schnellzugriff
+      icon: mdi:gesture-tap-button
+      type: heading
+    - type: custom:mushroom-template-card
+      primary: Räume
+      secondary: '{% set n = states.light | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} {{ ''Lampe'' if n == 1 else ''Lampen'' }} an'
+      icon: mdi:floor-plan
+      icon_color: purple
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/raeume
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(139,92,246,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Energie
+      secondary: '{{ states(''sensor.wechselrichter_wirkleistung'') | int(0) }} W PV · {{ states(''sensor.batterien_batterieladung'') | float(0) | round(0) }} % Akku'
+      icon: mdi:lightning-bolt
+      icon_color: amber
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/energie
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(250,204,21,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Server
+      secondary: '{% set n = states(''sensor.teamspeak_nutzer_online'') | int(0) %}{{ n }} auf TeamSpeak · Host {{ states(''sensor.host_cpu_auslastung'') | float(0) | round(0) }} %'
+      icon: mdi:server-network
+      icon_color: blue
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/server
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(56,189,248,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Garten
+      secondary: '{% set n = states.valve | selectattr(''state'',''eq'',''open'') | list | count %}{{ ''Alle Ventile zu'' if n == 0 else (n ~ '' Ventil(e) offen'') }}'
+      icon: mdi:sprinkler-variant
+      icon_color: green
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/garten
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(34,197,94,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Sicherheit
+      secondary: '{% set n = [states(''binary_sensor.kontakt_haustur_contact''),states(''binary_sensor.kontakt_terrassentur_contact''),states(''binary_sensor.kontakt_fenster_spule_contact''),states(''binary_sensor.kontakt_werkstatt'')]
+        | select(''eq'',''on'') | list | count %}{{ ''Alles geschlossen'' if n == 0 else (n ~ '' offen'') }}'
+      icon: mdi:shield-home
+      icon_color: red
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/sicherheit
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(239,68,68,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Heizung
+      secondary: '{{ states(''sensor.aussen_temperature'') | float(0) | round(1) | string | replace(''.'', '','') }} °C draußen'
+      icon: mdi:radiator
+      icon_color: pink
+      tap_action:
+        action: navigate
+        navigation_path: /klima-heizung/anlage
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(251,113,133,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Kameras
+      secondary: '{% set n = [states(''binary_sensor.eingang_motion''),states(''binary_sensor.garten_motion''),states(''binary_sensor.terrasse_motion''),states(''binary_sensor.garage_motion''),states(''binary_sensor.essbereich_motion'')]
+        | select(''eq'',''on'') | list | count %}{{ ''Ruhig'' if n == 0 else (n ~ ''× Bewegung'') }}'
+      icon: mdi:cctv
+      icon_color: blue-grey
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kameras
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: var(--card-background-color); } '
+    - type: custom:mushroom-template-card
+      primary: Pflanzen
+      secondary: Bodenfeuchte & Gießen
+      icon: mdi:flower
+      icon_color: teal
+      tap_action:
+        action: navigate
+        navigation_path: /pflanzen-uebersicht
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(45,212,191,0.14); } '
+    - type: custom:mushroom-template-card
+      primary: Rollläden
+      secondary: '{% set o = label_entities(''rollladen'') | select(''is_state'',''open'') | list | count %}{{ ''Alle zu'' if o == 0 else (o ~ '' von '' ~ (label_entities(''rollladen'') | count) ~ '' offen'')
+        }}'
+      icon: '{% set o = label_entities(''rollladen'') | select(''is_state'',''open'') | list | count %}{{ ''mdi:window-shutter'' if o == 0 else ''mdi:window-shutter-open'' }}'
+      icon_color: '{% set o = label_entities(''rollladen'') | select(''is_state'',''open'') | list | count %}{{ ''indigo'' if o == 0 else ''amber'' }}'
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/rolllaeden
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(99,102,241,0.14); } '
+    column_span: 2
+    type: grid
+  - cards:
+    - heading: Zuhause
+      icon: mdi:home-account
+      type: heading
+    - type: custom:mushroom-template-card
+      entity: person.person_1
+      primary: Person 1
+      secondary: '{% if is_state(''person.person_1'',''home'') %}Zuhause{% elif is_state(''person.person_1'',''not_home'') %}Unterwegs{% else %}{{ states(''person.person_1'') }}{% endif %}'
+      picture: '{{ state_attr(''person.person_1'',''entity_picture'') }}'
+      icon: mdi:account
+      icon_color: '{{ ''blue'' if is_state(''person.person_1'',''home'') else ''grey'' }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { {% if is_state(''person.person_1'',''home'') %} background: #111111; --primary-text-color: #FBF9F4; --secondary-text-color: rgba(251,249,244,.72); --card-primary-color: #FBF9F4; --card-secondary-color:
+          rgba(251,249,244,.72); --tile-color: #FBF9F4;  {% else %}  opacity: .75; {% endif %} }'
+    - type: custom:mushroom-template-card
+      entity: person.person_2
+      primary: Person 2
+      secondary: '{% if is_state(''person.person_2'',''home'') %}Zuhause{% elif is_state(''person.person_2'',''not_home'') %}Unterwegs{% else %}{{ states(''person.person_2'') }}{% endif %}'
+      picture: '{{ state_attr(''person.person_2'',''entity_picture'') }}'
+      icon: mdi:account
+      icon_color: '{{ ''blue'' if is_state(''person.person_2'',''home'') else ''grey'' }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { {% if is_state(''person.person_2'',''home'') %} background: #111111; --primary-text-color: #FBF9F4; --secondary-text-color: rgba(251,249,244,.72); --card-primary-color: #FBF9F4; --card-secondary-color:
+          rgba(251,249,244,.72); --tile-color: #FBF9F4;  {% else %}  opacity: .75; {% endif %} }'
+    - color: red
+      entity: binary_sensor.kontakt_haustur_contact
+      grid_options:
+        columns: 6
+      icon: mdi:door
+      name: Haustür
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_haustur_contact'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - color: blue
+      entity: binary_sensor.kontakt_briefkasten_contact
+      grid_options:
+        columns: 6
+      icon: mdi:mailbox
+      name: Briefkasten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_briefkasten_contact'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: cover.garagentor
+      features:
+      - type: cover-open-close
+      icon: mdi:garage
+      name: Garage
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.garagentor'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - entity: cover.carport_tor
+      features:
+      - type: cover-open-close
+      icon: mdi:carport
+      name: Carport
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.carport_tor'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - type: grid
+    cards:
+    - type: heading
+      heading: Haushalt
+      icon: mdi:washing-machine
+    - type: custom:mushroom-template-card
+      entity: sensor.waschmaschine_zustand
+      primary: Waschmaschine
+      secondary: '{% set z = states(''sensor.waschmaschine_zustand'') %}{% set r = states(''sensor.waschmaschine_verbleibende_zeit'') %}{% set p = states(''sensor.waschmaschine_programm'') %}{% if z in
+        [''starting'',''running'',''paused'',''user_paused'',''ending'',''rinse'',''anti_wrinkle'',''delay_wait''] %}Läuft{% if r not in [''unknown'',''unavailable'',''none''] %} · noch {{ r | int(0) }}
+        Min{% endif %}{% if p not in [''unknown'',''unavailable'',''none'',''off''] and not p.startswith(''detect'') %} · {{ p }}{% endif %}{% elif z == ''finished'' %}Fertig{% else %}Aus{% endif %}'
+      icon: mdi:washing-machine
+      icon_color: '{% set z = states(''sensor.waschmaschine_zustand'') %}{{ ''blue'' if z in [''starting'',''running'',''paused'',''user_paused'',''ending'',''rinse'',''anti_wrinkle'',''delay_wait''] else
+        (''green'' if z == ''finished'' else ''grey'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 12
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(74,144,217,0.14); } '
+    - type: custom:mushroom-template-card
+      entity: sensor.trockner_zustand
+      primary: Trockner
+      secondary: '{% set z = states(''sensor.trockner_zustand'') %}{% set r = states(''sensor.trockner_verbleibende_zeit'') %}{% set p = states(''sensor.trockner_programm'') %}{% if z in [''starting'',''running'',''paused'',''user_paused'',''ending'',''rinse'',''anti_wrinkle'',''delay_wait'']
+        %}Läuft{% if r not in [''unknown'',''unavailable'',''none''] %} · noch {{ r | int(0) }} Min{% endif %}{% if p not in [''unknown'',''unavailable'',''none'',''off''] and not p.startswith(''detect'')
+        %} · {{ p }}{% endif %}{% elif z == ''finished'' %}Fertig{% else %}Aus{% endif %}'
+      icon: mdi:tumble-dryer
+      icon_color: '{% set z = states(''sensor.trockner_zustand'') %}{{ ''orange'' if z in [''starting'',''running'',''paused'',''user_paused'',''ending'',''rinse'',''anti_wrinkle'',''delay_wait''] else
+        (''green'' if z == ''finished'' else ''grey'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 12
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(249,115,22,0.14); } '
+    - type: custom:mushroom-template-card
+      entity: sensor.geschirrspuler_zustand
+      primary: Geschirrspüler
+      secondary: '{% set z = states(''sensor.geschirrspuler_zustand'') %}{% set r = states(''sensor.geschirrspuler_verbleibende_zeit'') %}{% set p = states(''sensor.geschirrspuler_programm'') %}{% if z
+        in [''starting'',''running'',''paused'',''user_paused'',''ending'',''rinse'',''anti_wrinkle'',''delay_wait''] %}Läuft{% if r not in [''unknown'',''unavailable'',''none''] %} · noch {{ r | int(0)
+        }} Min{% endif %}{% if p not in [''unknown'',''unavailable'',''none'',''off''] and not p.startswith(''detect'') %} · {{ p }}{% endif %}{% elif z == ''finished'' %}Fertig{% else %}Aus{% endif %}'
+      icon: mdi:dishwasher
+      icon_color: '{% set z = states(''sensor.geschirrspuler_zustand'') %}{{ ''teal'' if z in [''starting'',''running'',''paused'',''user_paused'',''ending'',''rinse'',''anti_wrinkle'',''delay_wait''] else
+        (''green'' if z == ''finished'' else ''grey'') }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 12
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(20,184,166,0.14); } '
+  - cards:
+    - heading: Energie jetzt
+      icon: mdi:solar-power-variant
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-uebersicht/energie
+      type: heading
+    - card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(250,204,21,0.14); } '
+      entity: sensor.wechselrichter_wirkleistung
+      grid_options:
+        columns: 6
+      icon: mdi:solar-power-variant
+      icon_color: amber
+      primary: PV-Leistung
+      secondary: '{{ states(''sensor.wechselrichter_wirkleistung'') | int(0) }} W'
+      tap_action:
+        action: more-info
+      type: custom:mushroom-template-card
+    - card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(217,70,239,0.14); } '
+      entity: sensor.stromzahler_wirkleistung
+      grid_options:
+        columns: 6
+      icon: '{% if states(''sensor.stromzahler_wirkleistung'') | int(0) < 0 %}mdi:transmission-tower-export{% else %}mdi:transmission-tower-import{% endif %}'
+      icon_color: '{% if states(''sensor.stromzahler_wirkleistung'') | int(0) < 0 %}green{% else %}pink{% endif %}'
+      primary: Netz
+      secondary: '{% set p = states(''sensor.stromzahler_wirkleistung'') | int(0) %}{{ p | abs }} W {{ ''Einspeisung'' if p < 0 else ''Bezug'' }}'
+      tap_action:
+        action: more-info
+      type: custom:mushroom-template-card
+    - card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(34,197,94,0.14); } '
+      entity: sensor.batterien_batterieladung
+      grid_options:
+        columns: 6
+      icon: mdi:battery-charging-high
+      icon_color: green
+      primary: Batterie
+      secondary: '{{ states(''sensor.batterien_batterieladung'') | float(0) | round(0) }} % · {{ states(''sensor.batterien_lade_entladeleistung'') | int(0) }} W'
+      tap_action:
+        action: navigate
+        navigation_path: /system-gesundheit/batterien
+      type: custom:mushroom-template-card
+    - card_mod:
+        style: 'ha-card { overflow: hidden; background: rgba(56,189,248,0.14); } '
+      entity: sensor.wechselrichter_tagesertrag
+      grid_options:
+        columns: 6
+      icon: mdi:chart-box
+      icon_color: light-blue
+      primary: Ertrag heute
+      secondary: '{{ states(''sensor.wechselrichter_tagesertrag'') }} kWh'
+      tap_action:
+        action: more-info
+      type: custom:mushroom-template-card
+    - color_thresholds: []
+      entities:
+      - entity: sensor.wechselrichter_wirkleistung
+        name: PV
+        color: '#facc15'
+      - entity: sensor.stromzahler_wirkleistung
+        name: Netz
+        color: '#d946ef'
+      grid_options:
+        columns: full
+        rows: 4
+      hours_to_show: 24
+      line_width: 3
+      name: Verlauf 24 h
+      points_per_hour: 2
+      show:
+        fill: fade
+        labels: true
+      smoothing: true
+      type: custom:mini-graph-card
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  - cards:
+    - badges:
+      - icon: mdi:lightbulb-off-outline
+        tap_action:
+          action: perform-action
+          confirmation:
+            text: Wirklich alle Lampen ausschalten?
+          perform_action: light.turn_off
+          target:
+            entity_id: all
+        type: button
+      heading: Licht
+      icon: mdi:lightbulb-group
+      type: heading
+    - entity: light.deckenlampe_wohnzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Wohnzimmer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.stehlampe_wohnzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Stehlampe WZ
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.stehlampe_wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.deckenlampe_schlafzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Schlafzimmer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_schlafzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.deckenlampe_kinderzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Kinderzimmer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_kinderzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.flur_unten
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Flur unten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.flur_unten'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.aussenbeleuchtung_eingang
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Außen Eingang
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.aussenbeleuchtung_eingang'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Medien
+      icon: mdi:speaker-multiple
+      type: heading
+    - type: tile
+      entity: media_player.wohnzimmer
+      name: Wohnzimmer
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.kuche_2
+      name: Küche
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.kuche_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.bad
+      name: Bad
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.bad'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.treppenhaus
+      name: Treppenhaus
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.treppenhaus'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.apple_tv
+      name: Apple TV
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.apple_tv'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Müllabfuhr
+      icon: mdi:trash-can
+      type: heading
+    - type: custom:mushroom-template-card
+      entity: sensor.waste_collection_schedule_restmulltonne
+      primary: Restmüll
+      secondary: '{% set s = states(''sensor.waste_collection_schedule_restmulltonne'') %}{% set d = strptime(s.split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d %}{% set n = (d.date() - now().date()).days
+        %}{{ ''Heute!'' if n == 0 else (''Morgen'' if n == 1 else (''in '' ~ n ~ '' Tagen'')) }} · {{ [''Mo'',''Di'',''Mi'',''Do'',''Fr'',''Sa'',''So''][d.weekday()] }} {{ d.strftime(''%d.%m.'') }}{% else
+        %}{{ s }}{% endif %}'
+      icon: mdi:trash-can
+      icon_color: '{% set d = strptime(states(''sensor.waste_collection_schedule_restmulltonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{{ ''red'' if d and (d.date() - now().date()).days <= 1 else ''grey''
+        }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set d = strptime(states(''sensor.waste_collection_schedule_restmulltonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d and (d.date() - now().date()).days
+          <= 1 %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - type: custom:mushroom-template-card
+      entity: sensor.waste_collection_schedule_biotonne
+      primary: Bio
+      secondary: '{% set s = states(''sensor.waste_collection_schedule_biotonne'') %}{% set d = strptime(s.split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d %}{% set n = (d.date() - now().date()).days %}{{
+        ''Heute!'' if n == 0 else (''Morgen'' if n == 1 else (''in '' ~ n ~ '' Tagen'')) }} · {{ [''Mo'',''Di'',''Mi'',''Do'',''Fr'',''Sa'',''So''][d.weekday()] }} {{ d.strftime(''%d.%m.'') }}{% else %}{{
+        s }}{% endif %}'
+      icon: mdi:leaf
+      icon_color: '{% set d = strptime(states(''sensor.waste_collection_schedule_biotonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{{ ''red'' if d and (d.date() - now().date()).days <= 1 else ''green''
+        }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set d = strptime(states(''sensor.waste_collection_schedule_biotonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d and (d.date() - now().date()).days
+          <= 1 %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - type: custom:mushroom-template-card
+      entity: sensor.waste_collection_schedule_papiertonne
+      primary: Papier
+      secondary: '{% set s = states(''sensor.waste_collection_schedule_papiertonne'') %}{% set d = strptime(s.split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d %}{% set n = (d.date() - now().date()).days
+        %}{{ ''Heute!'' if n == 0 else (''Morgen'' if n == 1 else (''in '' ~ n ~ '' Tagen'')) }} · {{ [''Mo'',''Di'',''Mi'',''Do'',''Fr'',''Sa'',''So''][d.weekday()] }} {{ d.strftime(''%d.%m.'') }}{% else
+        %}{{ s }}{% endif %}'
+      icon: mdi:newspaper-variant
+      icon_color: '{% set d = strptime(states(''sensor.waste_collection_schedule_papiertonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{{ ''red'' if d and (d.date() - now().date()).days <= 1 else ''blue''
+        }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set d = strptime(states(''sensor.waste_collection_schedule_papiertonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d and (d.date() - now().date()).days
+          <= 1 %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - type: custom:mushroom-template-card
+      entity: sensor.waste_collection_schedule_wertstofftonne
+      primary: Wertstoff
+      secondary: '{% set s = states(''sensor.waste_collection_schedule_wertstofftonne'') %}{% set d = strptime(s.split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d %}{% set n = (d.date() - now().date()).days
+        %}{{ ''Heute!'' if n == 0 else (''Morgen'' if n == 1 else (''in '' ~ n ~ '' Tagen'')) }} · {{ [''Mo'',''Di'',''Mi'',''Do'',''Fr'',''Sa'',''So''][d.weekday()] }} {{ d.strftime(''%d.%m.'') }}{% else
+        %}{{ s }}{% endif %}'
+      icon: mdi:recycle
+      icon_color: '{% set d = strptime(states(''sensor.waste_collection_schedule_wertstofftonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{{ ''red'' if d and (d.date() - now().date()).days <= 1 else ''amber''
+        }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: 6
+        rows: auto
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set d = strptime(states(''sensor.waste_collection_schedule_wertstofftonne'').split('', '')[-1], ''%d.%m.%Y'', none) %}{% if d and (d.date() - now().date()).days
+          <= 1 %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  theme: Frame Haus
+  title: Start
+  type: sections
+- icon: mdi:floor-plan
+  max_columns: 3
+  path: raeume
+  sections:
+  - cards:
+    - badges:
+      - entity: sensor.wohnzimmer_temperature
+        show_state: true
+        type: entity
+      heading: Wohnzimmer
+      icon: mdi:sofa
+      type: heading
+    - entity: light.deckenlampe_wohnzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Deckenlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.stehlampe_wohnzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Stehlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.stehlampe_wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.wohnzimmer_komode
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Kommode
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.wohnzimmer_komode'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.tv_konsole
+      grid_options:
+        columns: 6
+      icon: mdi:television-classic
+      name: TV-Konsole
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.tv_konsole'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_wohnzimmer
+      features:
+      - type: target-temperature
+      - style: dropdown
+        type: climate-hvac-modes
+      name: Heizung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.wohnzimmer
+      name: Wohnzimmer
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.wohnzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.wohnzimmer_links_langsam
+      name: Rollladen links
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.wohnzimmer_links_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.wohnzimmer_rechts_langsam
+      name: Rollladen rechts
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.wohnzimmer_rechts_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - badges:
+      - entity: sensor.kuche_temperature
+        show_state: true
+        type: entity
+      heading: Küche
+      icon: mdi:chef-hat
+      type: heading
+    - entity: switch.kaffeemaschine
+      grid_options:
+        columns: 6
+      icon: mdi:coffee-maker
+      name: Kaffeemaschine
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.kaffeemaschine'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.wasserkocher
+      grid_options:
+        columns: 6
+      icon: mdi:kettle
+      name: Wasserkocher
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.wasserkocher'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.geschirrspuler
+      grid_options:
+        columns: 6
+      icon: mdi:dishwasher
+      name: Geschirrspüler
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.geschirrspuler'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.kuhlschrank_kuche
+      grid_options:
+        columns: 6
+      icon: mdi:fridge
+      name: Kühlschrank
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.kuhlschrank_kuche'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.dunstabzug
+      grid_options:
+        columns: 6
+      icon: mdi:air-filter
+      name: Dunstabzug
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.dunstabzug'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.heisswasserbereiter
+      grid_options:
+        columns: 6
+      icon: mdi:kettle-outline
+      name: Heißwasserbereiter
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.heisswasserbereiter'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_kuche
+      features:
+      - type: target-temperature
+      - style: dropdown
+        type: climate-hvac-modes
+      name: Heizung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_kuche'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.kuche_2
+      name: Sonos Küche
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 12
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.kuche_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - content: '*In der Küche ist derzeit keine Lampe in Home Assistant eingebunden.*'
+      text_only: true
+      type: markdown
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: tile
+      entity: cover.terrassentur_langsam
+      name: Rollladen Terrassentür
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.terrassentur_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - badges:
+      - entity: sensor.schlafzimmer_temperature
+        show_state: true
+        type: entity
+      - entity: sensor.schlafzimmer_humidity
+        show_state: true
+        type: entity
+      heading: Schlafzimmer
+      icon: mdi:bed-king
+      type: heading
+    - entity: light.deckenlampe_schlafzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Deckenlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_schlafzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.nachtlicht_schlafzimmer
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Nachtlicht
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.nachtlicht_schlafzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.nachttisch_1
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Nachttisch 1
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.nachttisch_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.nachttisch_2
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Nachttisch 2
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.nachttisch_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.luftreiniger_schlafzimmer
+      grid_options:
+        columns: 6
+      icon: mdi:air-purifier
+      name: Luftreiniger
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.luftreiniger_schlafzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.fenster_kontakt_1
+      grid_options:
+        columns: 6
+      icon: mdi:window-closed-variant
+      name: Fenster
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.fenster_kontakt_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_schlafzimmer
+      features:
+      - type: target-temperature
+      - style: dropdown
+        type: climate-hvac-modes
+      name: Heizung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_schlafzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.schlafzimmer_rechts_langsam
+      name: Rollladen rechts
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.schlafzimmer_rechts_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.schlafzimmer_gaube_links_langsam
+      name: Gaube links
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.schlafzimmer_gaube_links_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.schlafzimmer_gaube_rechts_langsam
+      name: Gaube rechts
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.schlafzimmer_gaube_rechts_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - badges:
+      - entity: sensor.kinderzimmer_temperature
+        show_state: true
+        type: entity
+      heading: Kinderzimmer
+      icon: mdi:teddy-bear
+      type: heading
+    - entity: light.deckenlampe_kinderzimmer
+      features:
+      - type: light-brightness
+      name: Deckenlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_kinderzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_kinderzimmer
+      features:
+      - type: target-temperature
+      - style: dropdown
+        type: climate-hvac-modes
+      name: Heizung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_kinderzimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.kinderzimmer_links_langsam
+      name: Rollladen links
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.kinderzimmer_links_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.kinderzimmer_rechts_langsam
+      name: Rollladen rechts
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.kinderzimmer_rechts_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - badges:
+      - entity: sensor.buro_temperature
+        show_state: true
+        type: entity
+      heading: Spielzimmer
+      icon: mdi:desk-lamp
+      type: heading
+    - entity: light.deckenlampe_buro
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Deckenlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_buro'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.stehlampe_buro
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Stehlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.stehlampe_buro'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.lampe_schrank
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Lampe Schrank
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.lampe_schrank'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.drucker_3d_1
+      grid_options:
+        columns: 6
+      icon: mdi:printer-3d
+      name: 3D-Drucker
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.drucker_3d_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.computer
+      grid_options:
+        columns: 6
+      icon: mdi:desktop-tower
+      name: Computer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.computer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.fenster_kontakt_2
+      grid_options:
+        columns: 6
+      icon: mdi:window-closed-variant
+      name: Fenster
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.fenster_kontakt_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_buro
+      features:
+      - type: target-temperature
+      - style: dropdown
+        type: climate-hvac-modes
+      name: Heizung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_buro'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.spielzimmer_links_langsam
+      name: Rollladen links
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.spielzimmer_links_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.spielzimmer_rechts_langsam
+      name: Rollladen rechts
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.spielzimmer_rechts_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Flur & Treppenhaus
+      icon: mdi:stairs
+      type: heading
+    - entity: light.flur_unten
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Flur unten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.flur_unten'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.flur_oben
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Flur oben
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.flur_oben'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.treppenhaus_unten
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Treppe unten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.treppenhaus_unten'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.treppenhaus_oben
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Treppe oben
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.treppenhaus_oben'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.treppenhaus_wandlampe
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Wandlampe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.treppenhaus_wandlampe'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.schiebeturenschrank
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Schrank
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.schiebeturenschrank'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.deckenlampe_vorraum
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Vorraum
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_vorraum'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.treppenhaus
+      name: Sonos
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.treppenhaus'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_treppenhaus
+      features:
+      - type: target-temperature
+      name: Heizung Treppenhaus
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_treppenhaus'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.treppenhaus_links_langsam
+      name: Rollladen links
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.treppenhaus_links_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.treppenhaus_mitte_langsam
+      name: Rollladen Mitte
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.treppenhaus_mitte_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.treppenhaus_rechts_langsam
+      name: Rollladen rechts
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.treppenhaus_rechts_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Bad & Waschküche
+      icon: mdi:shower
+      type: heading
+    - entity: light.deckenlampe_bad
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Deckenlampe Bad
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.deckenlampe_bad'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: media_player.bad
+      name: Sonos Bad
+      state_content:
+      - state
+      - media_title
+      - media_artist
+      features:
+      - type: media-player-playback
+      - type: media-player-volume-slider
+      features_position: bottom
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''media_player.bad'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(167,139,250,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.waschmaschine
+      grid_options:
+        columns: 6
+      icon: mdi:washing-machine
+      name: Waschmaschine
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.waschmaschine'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.trockner
+      grid_options:
+        columns: 6
+      icon: mdi:tumble-dryer
+      name: Trockner
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.trockner'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.warmwasser_nachheizen
+      grid_options:
+        columns: 6
+      icon: mdi:water-boiler
+      name: Warmwasser
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.warmwasser_nachheizen'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_badezimmer
+      features:
+      - type: target-temperature
+      name: Heizung Bad
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_badezimmer'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_waschkuche
+      features:
+      - type: target-temperature
+      name: Heizung Waschküche
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_waschkuche'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.badezimmer_langsam
+      name: Rollladen Bad
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.badezimmer_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - type: tile
+      entity: cover.dachfenster_bad_langsam
+      name: Velux
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      features_position: inline
+      grid_options:
+        columns: 6
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.dachfenster_bad_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Eingang & Terrasse
+      icon: mdi:door-open
+      type: heading
+    - entity: light.aussenbeleuchtung_eingang
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Außen Eingang
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.aussenbeleuchtung_eingang'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.eingangsbereich_1
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Eingangsbereich
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.eingangsbereich_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.eingang_garten
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Eingang Garten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.eingang_garten'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.haustur_1
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Haustür 1
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.haustur_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.haustur_2
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Haustür 2
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.haustur_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.terassen_string
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Lichterkette
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.terassen_string'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.wandlampe_terrasse
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Wandlampe Terrasse
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.wandlampe_terrasse'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: climate.vtherm_eingang
+      features:
+      - type: target-temperature
+      grid_options:
+        columns: 6
+      name: Heizung Eingang
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''climate.vtherm_eingang'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,113,133,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  theme: Frame Haus
+  title: Räume
+  type: sections
+- icon: mdi:lightning-bolt
+  max_columns: 3
+  path: energie
+  sections:
+  - cards:
+    - heading: Photovoltaik
+      icon: mdi:solar-power
+      type: heading
+    - color: amber
+      entity: sensor.wechselrichter_wirkleistung
+      features:
+      - hours_to_show: 24
+        type: trend-graph
+      name: Aktuelle Leistung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wechselrichter_wirkleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    - color: orange
+      entity: sensor.wechselrichter_tagesertrag
+      grid_options:
+        columns: 6
+      name: Ertrag heute
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wechselrichter_tagesertrag'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    - color: orange
+      entity: sensor.wechselrichter_gesamtenergieertrag
+      grid_options:
+        columns: 6
+      name: Gesamt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wechselrichter_gesamtenergieertrag'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.wechselrichter_eingangsleistung
+      grid_options:
+        columns: 6
+      name: DC-Eingang
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wechselrichter_eingangsleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.wechselrichter_geratestatus
+      grid_options:
+        columns: 6
+      name: Status
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.wechselrichter_geratestatus'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    type: grid
+  - cards:
+    - heading: Batterie
+      icon: mdi:battery-high
+      tap_action:
+        action: navigate
+        navigation_path: /system-gesundheit/batterien
+      type: heading
+    - color: green
+      entity: sensor.batterien_batterieladung
+      features:
+      - max: 100
+        min: 0
+        type: bar-gauge
+      name: Ladestand
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.batterien_batterieladung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - entity: sensor.batterien_lade_entladeleistung
+      features:
+      - hours_to_show: 24
+        type: trend-graph
+      name: Lade-/Entladeleistung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.batterien_lade_entladeleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.batterien_tagesladung
+      grid_options:
+        columns: 6
+      name: Geladen heute
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.batterien_tagesladung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - entity: sensor.batterien_tagesentladung
+      grid_options:
+        columns: 6
+      name: Entladen heute
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.batterien_tagesentladung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - entity: sensor.batterien_status
+      grid_options:
+        columns: 6
+      name: Status
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.batterien_status'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - entity: sensor.batterien_kritisch
+      grid_options:
+        columns: 6
+      name: Kritisch
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.batterien_kritisch'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    type: grid
+  - cards:
+    - heading: Netz & Zähler
+      icon: mdi:transmission-tower
+      type: heading
+    - color: purple
+      entity: sensor.stromzahler_wirkleistung
+      features:
+      - hours_to_show: 24
+        type: trend-graph
+      name: Netzleistung
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.stromzahler_wirkleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - entity: sensor.stromzahler_verbrauch
+      grid_options:
+        columns: 6
+      name: Bezug gesamt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.stromzahler_verbrauch'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - entity: sensor.stromzahler_exportierte_energie
+      grid_options:
+        columns: 6
+      name: Einspeisung gesamt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.stromzahler_exportierte_energie'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.stromzahler_phase_a_wirkleistung
+      grid_options:
+        columns: 4
+      name: Phase A
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.stromzahler_phase_a_wirkleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.stromzahler_phase_b_wirkleistung
+      grid_options:
+        columns: 4
+      name: Phase B
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.stromzahler_phase_b_wirkleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.stromzahler_phase_c_wirkleistung
+      grid_options:
+        columns: 4
+      name: Phase C
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.stromzahler_phase_c_wirkleistung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Verläufe
+      icon: mdi:chart-line
+      type: heading
+    - entities:
+      - color: orange
+        entity: sensor.wechselrichter_wirkleistung
+        name: PV
+      - color: purple
+        entity: sensor.stromzahler_wirkleistung
+        name: Netz
+      - color: green
+        entity: sensor.batterien_lade_entladeleistung
+        name: Batterie
+      grid_options:
+        columns: full
+        rows: 6
+      hours_to_show: 48
+      type: history-graph
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - chart_type: bar
+      days_to_show: 30
+      entities:
+      - color: orange
+        entity: sensor.wechselrichter_gesamtenergieertrag
+        name: PV-Ertrag/Tag
+      grid_options:
+        columns: full
+        rows: 6
+      period: day
+      stat_types:
+      - change
+      type: statistics-graph
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    column_span: 2
+    type: grid
+  - cards:
+    - heading: Große Verbraucher
+      icon: mdi:flash
+      type: heading
+    - entity: switch.warmwasser_nachheizen
+      icon: mdi:water-boiler
+      name: Warmwasser nachheizen
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.warmwasser_nachheizen'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.waschmaschine
+      grid_options:
+        columns: 6
+      icon: mdi:washing-machine
+      name: Waschmaschine
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.waschmaschine'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.trockner
+      grid_options:
+        columns: 6
+      icon: mdi:tumble-dryer
+      name: Trockner
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.trockner'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.geschirrspuler
+      grid_options:
+        columns: 6
+      icon: mdi:dishwasher
+      name: Geschirrspüler
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.geschirrspuler'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: switch.server_router_nas
+      grid_options:
+        columns: 6
+      icon: mdi:server
+      name: Server/Router/NAS
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.server_router_nas'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - entity: sensor.warmepumpenverbauch
+      icon: mdi:heat-pump
+      name: Wärmepumpe gesamt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.warmepumpenverbauch'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    type: grid
+  theme: Frame Haus
+  title: Energie
+  type: sections
+- icon: mdi:server-network
+  max_columns: 3
+  path: server
+  sections:
+  - cards:
+    - heading: TeamSpeak
+      icon: mdi:headset
+      type: heading
+    - card_mod:
+        style: 'ha-card { background: rgba(14,165,233,0.14); }'
+      entity: sensor.teamspeak_status
+      grid_options:
+        columns: full
+      icon: mdi:headset
+      icon_color: '{{ ''green'' if is_state(''sensor.teamspeak_status'',''running'') else ''red'' }}'
+      primary: TeamSpeak-Server
+      secondary: '{{ ''Läuft seit '' ~ (states(''sensor.teamspeak_betriebszeit'') | float(0) / 24) | round(1) ~ '' Tagen'' if is_state(''sensor.teamspeak_status'',''running'') else ''Gestoppt'' }}'
+      tap_action:
+        action: more-info
+      type: custom:mushroom-template-card
+    - type: custom:mushroom-template-card
+      entity: sensor.teamspeak_nutzer_online
+      primary: '{{ states(''sensor.teamspeak_nutzer_online'') }} Nutzer online'
+      secondary: '{{ state_attr(''sensor.teamspeak_nutzer_online'',''names_text'') or ''Gerade ist niemand verbunden'' }}'
+      icon: mdi:account-group
+      icon_color: '{{ ''green'' if states(''sensor.teamspeak_nutzer_online'') | int(0) > 0 else ''grey'' }}'
+      tap_action:
+        action: more-info
+      grid_options:
+        columns: full
+      card_mod:
+        style: 'ha-card { background: rgba(34,197,94,0.14); }'
+    - type: markdown
+      content: |-
+        {% set n = state_attr('sensor.teamspeak_nutzer_online','names') %}{% if n %}**Auf dem Server:**
+        {% for x in n %}
+        - {{ x }}
+        {% endfor %}{% else %}*Gerade ist niemand auf dem Server.*{% endif %}{% if not state_attr('sensor.teamspeak_nutzer_online','reachable') %}
+
+        > ⚠️ Server-Query nicht erreichbar{% endif %}
+      grid_options:
+        columns: full
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - type: tile
+      entity: sensor.teamspeak_nutzer_online
+      name: Nutzer im Verlauf
+      icon: mdi:chart-timeline-variant
+      color: green
+      features:
+      - type: trend-graph
+        hours_to_show: 24
+      grid_options:
+        columns: full
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_nutzer_online'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - color: blue
+      entity: sensor.teamspeak_cpu_auslastung
+      features:
+      - hours_to_show: 24
+        type: trend-graph
+      grid_options:
+        columns: 6
+      icon: mdi:cpu-64-bit
+      name: CPU
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_cpu_auslastung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - color: cyan
+      entity: sensor.teamspeak_arbeitsspeicher_auslastung_2
+      features:
+      - max: 100
+        min: 0
+        type: bar-gauge
+      grid_options:
+        columns: 6
+      icon: mdi:memory
+      name: RAM
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_arbeitsspeicher_auslastung_2'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.teamspeak_arbeitsspeicher_auslastung
+      grid_options:
+        columns: 4
+      icon: mdi:memory
+      name: RAM belegt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_arbeitsspeicher_auslastung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.teamspeak_massenspeicher_auslastung
+      grid_options:
+        columns: 4
+      icon: mdi:harddisk
+      name: Speicher
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_massenspeicher_auslastung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    - entity: sensor.teamspeak_betriebszeit
+      grid_options:
+        columns: 4
+      icon: mdi:clock-outline
+      name: Betriebszeit
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_betriebszeit'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif
+          %} } '
+    - entity: sensor.teamspeak_netzwerk_eingang
+      grid_options:
+        columns: 6
+      icon: mdi:download-network
+      name: Netz ein
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_netzwerk_eingang'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    - entity: sensor.teamspeak_netzwerk_ausgang
+      grid_options:
+        columns: 6
+      icon: mdi:upload-network
+      name: Netz aus
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.teamspeak_netzwerk_ausgang'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {%
+          endif %} } '
+    - heading: Steuerung
+      heading_style: subtitle
+      icon: mdi:tune
+      type: heading
+    - color: green
+      entity: button.teamspeak_starten
+      grid_options:
+        columns: 6
+      icon: mdi:play
+      name: Starten
+      type: tile
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        target:
+          entity_id: button.teamspeak_starten
+        confirmation:
+          text: Starten wirklich ausführen?
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''button.teamspeak_starten'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(56,189,248,0.14); {% endif %} } '
+    - color: amber
+      entity: button.teamspeak_neu_starten
+      grid_options:
+        columns: 6
+      icon: mdi:restart
+      name: Neu starten
+      type: tile
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        target:
+          entity_id: button.teamspeak_neu_starten
+        confirmation:
+          text: Neu starten wirklich ausführen?
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''button.teamspeak_neu_starten'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(56,189,248,0.14); {% endif %} } '
+    - color: red
+      entity: button.teamspeak_stoppen
+      grid_options:
+        columns: 6
+      icon: mdi:stop
+      name: Stoppen
+      type: tile
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        target:
+          entity_id: button.teamspeak_stoppen
+        confirmation:
+          text: Stoppen wirklich ausführen?
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''button.teamspeak_stoppen'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(56,189,248,0.14); {% endif %} } '
+    - color: blue
+      entity: button.teamspeak_snapshot_erstellen
+      grid_options:
+        columns: 6
+      icon: mdi:camera-plus
+      name: Snapshot
+      type: tile
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        target:
+          entity_id: button.teamspeak_snapshot_erstellen
+        confirmation:
+          text: Snapshot wirklich ausführen?
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''button.teamspeak_snapshot_erstellen'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(56,189,248,0.14); {% endif
+          %} } '
+    column_span: 2
+    type: grid
+  - cards:
+    - heading: Host
+      icon: mdi:server
+      type: heading
+    - color: green
+      entity: sensor.host_status
+      icon: mdi:server
+      name: Status
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.host_status'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - entity: sensor.host_cpu_auslastung
+      features:
+      - hours_to_show: 24
+        type: trend-graph
+      icon: mdi:cpu-64-bit
+      name: CPU
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.host_cpu_auslastung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - entity: sensor.host_arbeitsspeicher_auslastung
+      icon: mdi:memory
+      name: RAM
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.host_arbeitsspeicher_auslastung'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color);
+          {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Dienste
+      icon: mdi:apps
+      type: heading
+    - entity: binary_sensor.server_homeassistant
+      grid_options:
+        columns: 6
+      icon: mdi:home-assistant
+      name: Home Assistant
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_homeassistant'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_n8n
+      grid_options:
+        columns: 6
+      icon: mdi:cctv
+      name: Frigate
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_n8n'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_adguard
+      grid_options:
+        columns: 6
+      icon: mdi:shield-check
+      name: AdGuard
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_adguard'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_paperless_ngx
+      grid_options:
+        columns: 6
+      icon: mdi:file-document-multiple
+      name: paperless-ngx
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_paperless_ngx'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_pulse
+      grid_options:
+        columns: 6
+      icon: mdi:pulse
+      name: pulse
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_pulse'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_teamspeak
+      grid_options:
+        columns: 6
+      icon: mdi:headset
+      name: TeamSpeak
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_teamspeak'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_uptimekuma
+      grid_options:
+        columns: 6
+      icon: mdi:filmstrip
+      name: Jellyfin
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_uptimekuma'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_nginxproxymanager
+      grid_options:
+        columns: 6
+      icon: mdi:web
+      name: nginx Proxy Manager
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_nginxproxymanager'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_bot
+      grid_options:
+        columns: 6
+      icon: mdi:robot
+      name: Bot
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_bot'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.server_homarr
+      grid_options:
+        columns: 6
+      icon: mdi:dumbbell
+      name: wger
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.server_homarr'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - content: '*Hinweis: Entity-IDs und Beschriftungen an die eigenen Dienste anpassen.*'
+      text_only: true
+      type: markdown
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    type: grid
+  - cards:
+    - heading: Weiter zu
+      icon: mdi:arrow-right-circle
+      type: heading
+    - entity: switch.server_router_nas
+      icon: mdi:power-socket-de
+      name: Server/Router/NAS Steckdose
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.server_router_nas'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    - grid_options:
+        columns: 12
+        rows: 2
+      icon: mdi:heart-pulse
+      name: System-Gesundheit
+      styles:
+        card:
+        - background: linear-gradient(135deg,#f43f5e,#7c3aed)
+        - border-radius: 20px
+        - border: none
+        - box-shadow: none
+        icon:
+        - color: '#ffffff'
+        - width: 32px
+        name:
+        - color: '#ffffff'
+        - font-weight: '600'
+      tap_action:
+        action: navigate
+        navigation_path: /system-gesundheit
+      type: custom:button-card
+      extra_styles: 'ha-card { } '
+    type: grid
+  theme: Frame Haus
+  title: Server
+  type: sections
+- icon: mdi:sprinkler-variant
+  max_columns: 3
+  path: garten
+  sections:
+  - cards:
+    - heading: Bewässerung
+      icon: mdi:water
+      type: heading
+    - entity: valve.bewasserung_valve_1
+      features:
+      - type: valve-open-close
+      icon: mdi:sprinkler
+      name: Zone 1
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''valve.bewasserung_valve_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - entity: valve.bewasserung_valve_2
+      features:
+      - type: valve-open-close
+      icon: mdi:sprinkler
+      name: Zone 2
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''valve.bewasserung_valve_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - entity: valve.heckenbewasserung
+      features:
+      - type: valve-open-close
+      icon: mdi:hedge-trimmer
+      name: Hecke
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''valve.heckenbewasserung'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - entity: valve.entnahmedose
+      features:
+      - type: valve-open-close
+      icon: mdi:water-pump
+      name: Entnahmedose
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''valve.entnahmedose'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - color: blue
+      entity: switch.gartenpumpe
+      icon: mdi:pump
+      name: Gartenpumpe
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''switch.gartenpumpe'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(56,189,248,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Programme
+      icon: mdi:play-circle
+      type: heading
+    - color: green
+      entity: script.bewasserung_start
+      icon: mdi:play
+      name: Bewässerung starten
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.bewasserung_start
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''script.bewasserung_start'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(34,197,94,0.14); {% endif %} } '
+    - color: red
+      entity: script.bewasserung_stop
+      icon: mdi:stop
+      name: Alles stoppen
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.bewasserung_stop
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''script.bewasserung_stop'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(34,197,94,0.14); {% endif %} } '
+    - entity: script.bewasserung_zone_1_start
+      grid_options:
+        columns: 6
+      icon: mdi:numeric-1-circle
+      name: Nur Zone 1
+      type: tile
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.bewasserung_zone_1_start
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''script.bewasserung_zone_1_start'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(34,197,94,0.14); {% endif %} } '
+    - entity: script.bewasserung_zone_2_start
+      grid_options:
+        columns: 6
+      icon: mdi:numeric-2-circle
+      name: Nur Zone 2
+      type: tile
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.bewasserung_zone_2_start
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''script.bewasserung_zone_2_start'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(34,197,94,0.14); {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Gartenlicht
+      icon: mdi:outdoor-lamp
+      type: heading
+    - entity: light.garten_spot_beet_1
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Spot Beet 1
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.garten_spot_beet_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.garten_spot_beet_2
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Spot Beet 2
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.garten_spot_beet_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.garten_spot_beet_3
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Spot Beet 3
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.garten_spot_beet_3'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.garten_spot_baum_1
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Spot Baum
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.garten_spot_baum_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.garten_spot_baum_2
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Spot Baum 2
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.garten_spot_baum_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.terassen_string
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Lichterkette Terrasse
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.terassen_string'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.carport_haengelampe
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Hängelampe Carport
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.carport_haengelampe'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    - entity: light.werkstatt_haengelampe
+      features:
+      - type: light-brightness
+      grid_options:
+        columns: 6
+      name: Hängelampe Werkstatt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''light.werkstatt_haengelampe'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(251,191,36,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Wetter & Pflanzen
+      icon: mdi:weather-partly-cloudy
+      type: heading
+    - entity: weather.forecast_home
+      forecast_type: daily
+      grid_options:
+        columns: full
+      show_current: true
+      type: weather-forecast
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''weather.forecast_home'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: var(--card-background-color);  {% else %}  {% endif %} } '
+    - entity: sensor.aussen_temperature
+      grid_options:
+        columns: 6
+      name: Außentemperatur
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.aussen_temperature'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %}
+          } '
+    - entity: sensor.aussen_humidity
+      grid_options:
+        columns: 6
+      name: Luftfeuchte
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''sensor.aussen_humidity'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: var(--card-background-color); {% endif %} } '
+    - grid_options:
+        columns: 12
+        rows: 2
+      icon: mdi:flower
+      name: Pflanzen-Dashboard
+      styles:
+        card:
+        - background: linear-gradient(135deg,#22c55e,#0f766e)
+        - border-radius: 20px
+        - border: none
+        - box-shadow: none
+        icon:
+        - color: '#ffffff'
+        - width: 32px
+        name:
+        - color: '#ffffff'
+        - font-weight: '600'
+      tap_action:
+        action: navigate
+        navigation_path: /pflanzen-uebersicht
+      type: custom:button-card
+      extra_styles: 'ha-card { } '
+    type: grid
+  theme: Frame Haus
+  title: Garten
+  type: sections
+- title: Rollläden
+  path: rolllaeden
+  icon: mdi:window-shutter
+  type: sections
+  max_columns: 3
+  theme: Frame Haus
+  sections:
+  - type: grid
+    column_span: 3
+    cards:
+    - type: heading
+      heading: Rollläden
+      icon: mdi:window-shutter
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Morgen
+        secondary: '{% set l = label_entities(''rollladen'') %}Alle auf · {{ l | select(''is_state'',''open'') | list | count }}/{{ l | count }} offen'
+        icon: mdi:weather-sunny
+        icon_color: amber
+        tap_action:
+          action: perform-action
+          perform_action: script.rolllaeden_morgen
+        card_mod:
+          style: 'ha-card { overflow: hidden; background: rgba(250,204,21,0.14); } '
+      - type: custom:mushroom-template-card
+        primary: Abend
+        secondary: Lüftungsspalt
+        icon: mdi:weather-night
+        icon_color: indigo
+        tap_action:
+          action: perform-action
+          perform_action: script.rolllaeden_abend
+        card_mod:
+          style: 'ha-card { overflow: hidden; background: rgba(99,102,241,0.14); } '
+      - type: custom:mushroom-template-card
+        primary: Schlafräume
+        secondary: Nachtspalt
+        icon: mdi:bed-clock
+        icon_color: purple
+        tap_action:
+          action: perform-action
+          perform_action: script.rolllaeden_schlafraeume_nacht
+        card_mod:
+          style: 'ha-card { overflow: hidden; background: rgba(167,139,250,0.14); } '
+    - type: horizontal-stack
+      cards:
+      - type: tile
+        entity: cover.rollladen_alle
+        name: Alle
+        features:
+        - type: cover-open-close
+        card_mod:
+          style: 'ha-card { overflow: hidden; {% set s = states(''cover.rollladen_alle'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+            %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+      - type: tile
+        entity: cover.rollladen_eg
+        name: EG
+        features:
+        - type: cover-open-close
+        card_mod:
+          style: 'ha-card { overflow: hidden; {% set s = states(''cover.rollladen_eg'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+            %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+      - type: tile
+        entity: cover.rollladen_og
+        name: OG
+        features:
+        - type: cover-open-close
+        card_mod:
+          style: 'ha-card { overflow: hidden; {% set s = states(''cover.rollladen_og'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+            %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+  - type: grid
+    cards:
+    - type: heading
+      heading: Erdgeschoss
+      icon: mdi:home-floor-0
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.spielzimmer_links_langsam
+      name: Spielzimmer links
+      variables:
+        place: Spielzimmer
+        dir: Ost
+        battery: sensor.spielzimmer_link_battery_level
+        light: sensor.spielzimmer_link_spielzimmer_links_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.spielzimmer_rechts_langsam
+      name: Spielzimmer rechts
+      variables:
+        place: Spielzimmer
+        dir: Süd
+        battery: sensor.spielzimmer_rech_battery_level
+        light: sensor.spielzimmer_rech_spielzimmer_rechts_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.wohnzimmer_links_langsam
+      name: Wohnzimmer links
+      variables:
+        place: Wohnzimmer
+        dir: Süd
+        battery: sensor.wohnzimmer_links_battery_level
+        light: sensor.wohnzimmer_links_wohnzimmer_links_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.wohnzimmer_rechts_langsam
+      name: Wohnzimmer rechts
+      variables:
+        place: Wohnzimmer
+        dir: West
+        battery: sensor.wohnzimmer_recht_battery_level
+        light: sensor.wohnzimmer_recht_wohnzimmer_rechts_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.terrassentur_langsam
+      name: Küche Terrassentür
+      variables:
+        place: Küche
+        dir: West
+        battery: sensor.terrassentur_battery_level
+        light: sensor.terrassentur_terrassentur_luminance
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Obergeschoss
+      icon: mdi:home-floor-1
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.treppenhaus_links_langsam
+      name: Treppenhaus links
+      variables:
+        place: Treppenhaus (Schräge)
+        dir: Ost
+        battery: sensor.treppenhaus_links_battery_level
+        light: sensor.treppenhaus_links_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.treppenhaus_mitte_langsam
+      name: Treppenhaus Mitte
+      variables:
+        place: Treppenhaus
+        dir: Ost
+        battery: sensor.treppenhaus_mitte_battery_level
+        light: sensor.treppenhaus_mitte_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.treppenhaus_rechts_langsam
+      name: Treppenhaus rechts
+      variables:
+        place: Treppenhaus
+        dir: Ost
+        battery: sensor.treppenhaus_rechts_battery_level
+        light: sensor.treppenhaus_rechts_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.kinderzimmer_links_langsam
+      name: Kinderzimmer links
+      variables:
+        place: Kinderzimmer
+        dir: Ost
+        battery: sensor.kinderzimmer_links_battery_level
+        light: sensor.kinderzimmer_links_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.kinderzimmer_rechts_langsam
+      name: Kinderzimmer rechts
+      variables:
+        place: Kinderzimmer
+        dir: Süd
+        battery: sensor.kinderzimmer_rechts_battery_level
+        light: sensor.kinderzimmer_rechts_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.schlafzimmer_rechts_langsam
+      name: Schlafzimmer rechts
+      variables:
+        place: Schlafzimmer
+        dir: West
+        battery: sensor.schlafzimmer_rechts_battery_level
+        light: sensor.schlafzimmer_rechts_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.schlafzimmer_gaube_links_langsam
+      name: Gaube links
+      variables:
+        place: Schlafzimmer
+        dir: Süd
+        battery: sensor.schlafzimmer_gaube_links_battery_level
+        light: sensor.schlafzimmer_gaube_links_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.schlafzimmer_gaube_rechts_langsam
+      name: Gaube rechts
+      variables:
+        place: Schlafzimmer
+        dir: Süd
+        battery: sensor.schlafzimmer_gaube_rechts_battery_level
+        light: sensor.schlafzimmer_gaube_rechts_luminance
+    - type: custom:button-card
+      template: rollladen_card
+      entity: cover.badezimmer_langsam
+      name: Bad
+      variables:
+        place: Bad
+        dir: West
+        battery: sensor.badezimmer_battery_level
+        light: sensor.badezimmer_luminance
+    - type: tile
+      entity: cover.dachfenster_bad_langsam
+      name: Velux Bad
+      icon: mdi:window-shutter
+      features:
+      - type: cover-open-close
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.dachfenster_bad_langsam'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'',''docked'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+- icon: mdi:shield-home
+  max_columns: 3
+  path: sicherheit
+  sections:
+  - cards:
+    - heading: Türen & Fenster
+      icon: mdi:door
+      type: heading
+    - entity: binary_sensor.kontakt_haustur_contact
+      grid_options:
+        columns: 6
+      icon: mdi:door
+      name: Haustür
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_haustur_contact'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.kontakt_terrassentur_contact
+      grid_options:
+        columns: 6
+      icon: mdi:door-sliding
+      name: Terrassentür
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_terrassentur_contact'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.kontakt_fenster_spule_contact
+      grid_options:
+        columns: 6
+      icon: mdi:window-closed-variant
+      name: Fenster Spüle
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_fenster_spule_contact'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.fenster_kontakt_1
+      grid_options:
+        columns: 6
+      icon: mdi:window-closed-variant
+      name: Fenster Schlafzimmer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.fenster_kontakt_1'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.fenster_kontakt_2
+      grid_options:
+        columns: 6
+      icon: mdi:window-closed-variant
+      name: Fenster Spielzimmer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.fenster_kontakt_2'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.kontakt_werkstatt
+      grid_options:
+        columns: 6
+      icon: mdi:garage-variant
+      name: Werkstatt
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_werkstatt'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.kontakt_briefkasten_contact
+      grid_options:
+        columns: 6
+      icon: mdi:mailbox
+      name: Briefkasten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.kontakt_briefkasten_contact'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Tore
+      icon: mdi:garage
+      type: heading
+    - entity: cover.garagentor
+      features:
+      - type: cover-open-close
+      icon: mdi:garage
+      name: Garage
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.garagentor'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    - entity: cover.carport_tor
+      features:
+      - type: cover-open-close
+      icon: mdi:carport
+      name: Carport
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''cover.carport_tor'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(45,212,191,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Bewegung außen
+      icon: mdi:motion-sensor
+      type: heading
+    - entity: binary_sensor.eingang_motion
+      grid_options:
+        columns: 6
+      name: Eingang
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.eingang_motion'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.garage_motion
+      grid_options:
+        columns: 6
+      name: Garage
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.garage_motion'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.essbereich_motion
+      grid_options:
+        columns: 6
+      name: Essbereich
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.essbereich_motion'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.terrasse_motion
+      grid_options:
+        columns: 6
+      name: Terrasse
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.terrasse_motion'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.garten_motion
+      grid_options:
+        columns: 6
+      name: Garten
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.garten_motion'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    - entity: binary_sensor.eingang_person_occupancy
+      grid_options:
+        columns: 6
+      icon: mdi:account-alert
+      name: Person Eingang
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% set s = states(''binary_sensor.eingang_person_occupancy'') %}{% if s in [''unavailable'',''unknown''] %} opacity: .45; {% elif s not in [''off'',''closed'',''idle'',''standby'',''not_home'',''stopped'',''locked'',''disarmed'',''paused'']
+          %} background: rgba(248,113,113,0.14);  {% else %}  {% endif %} } '
+    type: grid
+  - cards:
+    - heading: Kameras
+      icon: mdi:cctv
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kameras
+      type: heading
+    - camera_view: auto
+      entity: camera.eingang
+      grid_options:
+        columns: 12
+        rows: 5
+      name: Eingang
+      show_state: false
+      type: picture-entity
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - camera_view: auto
+      entity: camera.garten
+      grid_options:
+        columns: 12
+        rows: 5
+      name: Garten
+      show_state: false
+      type: picture-entity
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - camera_view: auto
+      entity: camera.terrasse
+      grid_options:
+        columns: 12
+        rows: 5
+      name: Terrasse
+      show_state: false
+      type: picture-entity
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - camera_view: auto
+      entity: camera.garage
+      grid_options:
+        columns: 12
+        rows: 5
+      name: Garage
+      show_state: false
+      type: picture-entity
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    column_span: 2
+    type: grid
+  - cards:
+    - heading: Alarmo
+      icon: mdi:shield-alert
+      type: heading
+    - content: '**Achtung:** In Home Assistant existiert derzeit keine `alarm_control_panel`-Entität. Die Alarmo-Automationen laufen ({{ states(''automation.alarmo_armed_away_wenn_beide_weg'') }}), aber
+        das Bedienfeld fehlt – deshalb ist hier keine Alarm-Karte eingebaut.'
+      type: markdown
+      card_mod:
+        style: 'ha-card { overflow: hidden;  }'
+    - entity: automation.alarmo_armed_away_wenn_beide_weg
+      grid_options:
+        columns: 6
+      name: Auto-Scharf bei Abwesenheit
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''automation.alarmo_armed_away_wenn_beide_weg'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(129,140,248,0.14);
+          {% endif %} } '
+    - entity: automation.alarmo_disarm_wenn_jemand_heimkommt
+      grid_options:
+        columns: 6
+      name: Auto-Entschärfen
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''automation.alarmo_disarm_wenn_jemand_heimkommt'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(129,140,248,0.14);
+          {% endif %} } '
+    - entity: automation.alarmo_alarm_ausgelost
+      grid_options:
+        columns: 6
+      name: Alarm ausgelöst
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''automation.alarmo_alarm_ausgelost'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(129,140,248,0.14); {% endif
+          %} } '
+    - entity: automation.alarmo_taster_schlafzimmer
+      grid_options:
+        columns: 6
+      name: Taster Schlafzimmer
+      type: tile
+      card_mod:
+        style: 'ha-card { overflow: hidden; {% if states(''automation.alarmo_taster_schlafzimmer'') in [''unavailable'',''unknown''] %} opacity: .45; {% else %} background: rgba(129,140,248,0.14); {% endif
+          %} } '
+    type: grid
+  - type: grid
+    cards:
+    - type: heading
+      heading: Rollläden
+      icon: mdi:window-shutter
+    - type: markdown
+      content: |-
+        {% set offen = label_entities('rollladen') | select('is_state', 'open') | list %}{% if offen | count == 0 %}Alle Rollläden sind zu.{% else %}**{{ offen | count }} von {{ label_entities('rollladen') | count }} offen:**
+        {% for c in offen %}
+        - {{ state_attr(c, 'friendly_name') | replace(' Low speed', '') | replace(' langsam', '') }} ({{ state_attr(c, 'current_position') }} %){% endfor %}{% endif %}
+    - type: horizontal-stack
+      cards:
+      - type: button
+        name: Alle auf Spalt
+        icon: mdi:weather-night
+        tap_action:
+          action: perform-action
+          perform_action: script.rolllaeden_abend
+      - type: button
+        name: Alle auf
+        icon: mdi:weather-sunny
+        tap_action:
+          action: perform-action
+          perform_action: script.rolllaeden_morgen
+    - type: tile
+      entity: cover.rollladen_alle
+      name: Alle Rollläden
+      features:
+      - type: cover-open-close
+      - type: cover-position
+      features_position: bottom
+  theme: Frame Haus
+  title: Sicherheit
+  type: sections
+button_card_templates:
+  rollladen_card:
+    show_icon: true
+    show_name: true
+    show_state: false
+    tap_action:
+      action: more-info
+    icon: '[[[ const p = Number(entity.attributes.current_position); if (!Number.isFinite(p)) return ''mdi:window-shutter-alert''; return p <= 10 ? ''mdi:window-shutter'' : ''mdi:window-shutter-open'';
+      ]]]'
+    styles:
+      card:
+      - min-height: 168px
+      - padding: 14px
+      - border-radius: 20px
+      - box-shadow: none
+      - border: '[[[ return Number.isFinite(Number(entity.attributes.current_position)) ? ''none'' : ''1px dashed var(--divider-color)''; ]]]'
+      - background: '[[[ const p = Number(entity.attributes.current_position); const b = Number(states[variables.battery]?.state); if (!Number.isFinite(p)) return ''var(--card-background-color)''; if (Number.isFinite(b)
+          && b <= 20) return ''rgba(245,158,11,0.14)''; if (p <= 10) return ''rgba(99,102,241,0.14)''; if (p >= 90) return ''rgba(234,179,8,0.14)''; return ''rgba(14,165,233,0.14)''; ]]]'
+      - opacity: '[[[ return Number.isFinite(Number(entity.attributes.current_position)) ? 1 : .5; ]]]'
+      - transition: all .25s ease
+      grid:
+      - grid-template-areas: '"i status" "n n" "place place" "pos pos" "bar bar" "meta meta"'
+      - grid-template-columns: 44px 1fr
+      - grid-template-rows: 38px min-content min-content min-content 10px 1fr
+      icon:
+      - width: 28px
+      - color: '[[[ const p = Number(entity.attributes.current_position); if (!Number.isFinite(p)) return ''rgb(148,163,184)''; if (p <= 10) return ''rgb(99,102,241)''; if (p >= 90) return ''rgb(234,179,8)'';
+          return ''rgb(14,165,233)''; ]]]'
+      name:
+      - justify-self: start
+      - font-size: 16px
+      - font-weight: 750
+      custom_fields:
+        status:
+        - justify-self: end
+        - align-self: start
+        - padding: 4px 8px
+        - border-radius: 999px
+        - font-size: 11px
+        - font-weight: 750
+        - background: var(--secondary-background-color)
+        place:
+        - justify-self: start
+        - font-size: 12px
+        - color: var(--secondary-text-color)
+        pos:
+        - justify-self: start
+        - margin-top: 10px
+        - font-size: 30px
+        - font-weight: 800
+        bar:
+        - justify-self: stretch
+        - height: 8px
+        - border-radius: 999px
+        - overflow: hidden
+        - background: rgba(127,127,127,.16)
+        meta:
+        - justify-self: stretch
+        - display: flex
+        - flex-wrap: wrap
+        - gap: 6px
+        - margin-top: 10px
+        - font-size: 12px
+        - color: var(--secondary-text-color)
+    custom_fields:
+      status: '[[[ const p = Number(entity.attributes.current_position); const b = Number(states[variables.battery]?.state); if (!Number.isFinite(p)) return ''Offline''; if (Number.isFinite(b) && b <= 20)
+        return ''Akku''; if (p <= 10) return ''Zu''; if (p >= 90) return ''Offen''; return ''Teilweise''; ]]]'
+      place: '[[[ return variables.place ?? ""; ]]]'
+      pos: '[[[ const p = Number(entity.attributes.current_position); if (!Number.isFinite(p)) return ''Keine Daten''; return `${Math.round(p)}<span style="font-size:14px;font-weight:650;color:var(--secondary-text-color);margin-left:4px;">%
+        offen</span>`; ]]]'
+      bar: '[[[ const p = Number(entity.attributes.current_position); const w = Number.isFinite(p) ? Math.max(0, Math.min(100, p)) : 0; let c = ''rgb(14,165,233)''; if (!Number.isFinite(p)) c = ''rgb(148,163,184)'';
+        else if (p <= 10) c = ''rgb(99,102,241)''; else if (p >= 90) c = ''rgb(234,179,8)''; return `<div style="width:${w}%;height:100%;border-radius:999px;background:${c};"></div>`; ]]]'
+      meta: '[[[ const chip = (icon, text) => `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:rgba(127,127,127,.10);"><ha-icon icon="${icon}"
+        style="width:14px;height:14px;"></ha-icon>${text}</span>`; const parts = []; const b = states[variables.battery]?.state; const l = states[variables.light]?.state; if (variables.dir) parts.push(chip(''mdi:compass-outline'',
+        variables.dir)); if (b && ![''unknown'',''unavailable''].includes(b)) parts.push(chip(''mdi:battery'', `${Math.round(Number(b))}%`)); if (l && ![''unknown'',''unavailable''].includes(l)) parts.push(chip(''mdi:white-balance-sunny'',
+        `${Math.round(Number(l))} lx`)); return parts.join(''''); ]]]'
