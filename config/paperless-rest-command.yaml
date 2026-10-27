@@ -1,0 +1,26 @@
+# Ausschnitt aus /config/configuration.yaml: Abfragen an Paperless-ngx fuer script.paperless_suche.
+# Token in /config/secrets.yaml:  paperless_auth: "Token <API-Token aus Paperless → Mein Profil>"
+# rest_command laesst sich nicht neu laden – nach dem Eintragen Home Assistant einmal neu starten.
+rest_command:
+  paperless_suche:
+    url: >-
+      http://paperless.local:8000/api/documents/?page_size={{ anzahl | default(8) | int }}&truncate_content=true&{% if query %}query={{ query | urlencode }}{% else %}ordering=-added{% endif %}
+    method: get
+    headers:
+      Authorization: !secret paperless_auth
+      Accept: application/json
+    timeout: 15
+  paperless_korrespondenten:
+    url: http://paperless.local:8000/api/correspondents/?page_size=1000
+    method: get
+    headers:
+      Authorization: !secret paperless_auth
+      Accept: application/json
+    timeout: 15
+  paperless_dokumenttypen:
+    url: http://paperless.local:8000/api/document_types/?page_size=1000
+    method: get
+    headers:
+      Authorization: !secret paperless_auth
+      Accept: application/json
+    timeout: 15

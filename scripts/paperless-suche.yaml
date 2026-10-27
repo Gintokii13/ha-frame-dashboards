@@ -1,0 +1,40 @@
+# UI-Skript script.paperless_suche (im Skript-Editor im YAML-Modus anlegen, ID: paperless_suche).
+# Liefert dem Frame-Popup (frame_service mit variables.search) die Treffer; braucht die rest_commands aus config/paperless-rest-command.yaml.
+alias: Paperless-Suche
+description: >-
+  Volltextsuche in Paperless-ngx für das Frame-Popup (Server-Ansicht). Ohne Suchbegriff: die zuletzt hinzugefügten
+  Dokumente. Gibt status, anzahl und dokumente (id, title, korrespondent, typ, datum, treffer) zurück.
+icon: mdi:file-search-outline
+mode: parallel
+max: 5
+fields:
+  query:
+    name: Suchbegriff
+    description: Leer = zuletzt hinzugefügt
+    required: false
+    selector:
+      text: {}
+  anzahl:
+    name: Anzahl
+    required: false
+    default: 8
+    selector:
+      number:
+        min: 1
+        max: 25
+        mode: box
+sequence:
+  - action: rest_command.paperless_suche
+    data:
+      query: "{{ query | default('') | trim }}"
+      anzahl: "{{ anzahl | default(8) | int }}"
+    response_variable: r
+  - action: rest_command.paperless_korrespondenten
+    response_variable: k
+  - action: rest_command.paperless_dokumenttypen
+    response_variable: t
+  - variables:
+      ergebnis: >-
+        {% set kor = (k.content.results if k.status == 200 else []) %}{% set typ = (t.content.results if t.status == 200 else []) %}{% set ns = namespace(d=[]) %}{% if r.status == 200 %}{% for d in r.content.results %}{% set hit = d['__search_hit__'] if '__search_hit__' in d else none %}{% set ns.d = ns.d + [{'id': d.id, 'title': d.title, 'korrespondent': (kor | selectattr('id','eq',d.correspondent) | map(attribute='name') | first | default(none)) if d.correspondent else none, 'typ': (typ | selectattr('id','eq',d.document_type) | map(attribute='name') | first | default(none)) if d.document_type else none, 'datum': d.created, 'treffer': (hit.highlights if hit and hit.highlights else '')}] %}{% endfor %}{% endif %}{{ {'status': r.status, 'anzahl': (r.content.count if r.status == 200 else 0), 'modus': 'suche' if (query | default('') | trim) else 'neu', 'dokumente': ns.d} }}
+  - stop: Fertig
+    response_variable: ergebnis

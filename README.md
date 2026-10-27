@@ -13,6 +13,7 @@ Vier Home-Assistant-Dashboards im **Frame-Design** („paper & ink“, nach [slc
 | [`dashboards/klima-heizung.yaml`](dashboards/klima-heizung.yaml) | **Klima & Heizung** – Thermostate (Versatile Thermostat), Feuchte, Wärmepumpe/Speicher | mushroom |
 | [`dashboards/einkauf-liste.yaml`](dashboards/einkauf-liste.yaml) | **Einkauf** – Artikel-Knöpfe nach Ort (Kühlschrank, Vorrat, TK, Drogerie, Küche) mit Häufigkeitszählern | mushroom |
 | [`scripts/szenen.yaml`](scripts/szenen.yaml) | Szenen-Skripte für die Knöpfe „Guten Morgen“, „Abend“, „Gute Nacht“, „Alles aus“ | – |
+| [`scripts/paperless-suche.yaml`](scripts/paperless-suche.yaml) + [`config/paperless-rest-command.yaml`](config/paperless-rest-command.yaml) | Paperless-Suche für das Dienst-Popup (Skript mit Rückgabe + `rest_command`) | – |
 | [`themes/frame/frame.yaml`](themes/frame/frame.yaml) | Themes **Frame** (randlose Frame-Ansichten) und **Frame Haus** (ganzes HA) | – |
 | [`www/frame/frame.js`](www/frame/frame.js) | Hilfsfunktionen für die Start-Karten (Formatierung, Zustände, Service-Aufrufe) | – |
 | [`www/frame/frame-layout.js`](www/frame/frame-layout.js) | Erweiterung für layout-card: `height`, `padding`, `margin` und eigene CSS-Variablen auch in `mediaquery` | – |
@@ -96,7 +97,7 @@ Die Energie-Ansicht ist eine eigene Karte in vier Teilen (`variables.part`):
 
 ### Dienst-Kacheln mit Popup (`frame_service`)
 
-In der Server-Ansicht sind Proxmox, Frigate und AdGuard keine einfachen Statuskacheln mehr. Antippen öffnet ein Popup im Frame-Stil, Halten weiterhin die normalen Details von Home Assistant.
+In der Server-Ansicht sind Proxmox, Frigate, AdGuard und Paperless keine einfachen Statuskacheln mehr. Antippen öffnet ein Popup im Frame-Stil, Halten weiterhin die normalen Details von Home Assistant.
 
 - **Verlauf** (24 Std oder 7 Tage): ein Balken für die Erreichbarkeit mit Prozentwert („99,8 % erreichbar“), Ausfällen und Lücken ohne Daten, darunter Kurven für CPU und Arbeitsspeicher mit Durchschnitt und Spitze. Antippen oder Überfahren einer Kurve zeigt Uhrzeit und Wert.
 - **Info**: Laufzeit, Speicher als „x von y GiB“ mit Füllbalken (rot ab einer Warnschwelle), letztes Backup, Versionen bzw. verfügbare Updates.
@@ -120,6 +121,24 @@ variables:
     - { label: Aufnahmen, entity: sensor.nas_aufnahmen_belegt, of: sensor.nas_aufnahmen_gesamt, warn_above: 90 }
     - { label: Frigate, entity: update.frigate_server }
 ```
+
+#### Paperless-Suche im Popup
+
+Die Paperless-Kachel hat zusätzlich ein **Suchfeld**: Treffer aus der Volltextsuche mit Titel, Korrespondent, Dokumenttyp, Datum und der gefundenen Textstelle, ohne Suchbegriff die zuletzt hinzugefügten Dokumente. Antippen öffnet das Dokument in Paperless. Die Abfrage läuft über ein Home-Assistant-Skript mit Rückgabewert – das API-Token bleibt in `secrets.yaml` und steht nie im Dashboard.
+
+1. In Paperless unter *Mein Profil* ein API-Token erzeugen und in `/config/secrets.yaml` eintragen: `paperless_auth: "Token <token>"`.
+2. Den Inhalt von [`config/paperless-rest-command.yaml`](config/paperless-rest-command.yaml) in `configuration.yaml` übernehmen (Adresse anpassen) und Home Assistant neu starten – `rest_command` lässt sich nicht neu laden.
+3. [`scripts/paperless-suche.yaml`](scripts/paperless-suche.yaml) im Skript-Editor (YAML-Modus) als `script.paperless_suche` anlegen.
+4. In der Kachel `variables.search` setzen:
+
+```yaml
+search:
+  script: script.paperless_suche
+  doc_url: http://paperless.local:8000/documents/{id}/details
+  placeholder: In Paperless suchen …
+```
+
+Optional liefert die offizielle Integration [Paperless-ngx](https://www.home-assistant.io/integrations/paperless_ngx/) Zahlen wie „im Posteingang“ für die Info-Spalte. Das Dokument selbst öffnet sich nur dort, wo Paperless erreichbar ist (zu Hause oder per VPN).
 
 `frame-popup.js` muss nicht als Ressource eingetragen werden – `frame.js` lädt es beim ersten Anzeigen einer Dienst-Kachel aus demselben Ordner.
 
@@ -174,7 +193,7 @@ Jede Ansicht hat einen eigenen Pfad und lässt sich direkt öffnen, als Lesezeic
 | Einkauf | `http://<ha>/einkauf-liste/start` · `/kuehlschrank` · `/vorrat` · `/tiefkuehler` · `/kueche` · `/drogerie` |
 
 - Mit `?disable_km` am Ende (z. B. `…/dashboard-start/start?disable_km`) zeigt kiosk-mode auch auf dem iPad wieder die Kopfzeile – praktisch zum Bearbeiten.
-- Die Weboberflächen von Proxmox, Frigate und AdGuard erreichst du über die Dienst-Kacheln der Server-Ansicht (siehe [Dienst-Kacheln mit Popup](#dienst-kacheln-mit-popup-frame_service)). Die Adressen dort (`proxmox.local`, `frigate.local`, `adguard.local`) sind Platzhalter.
+- Die Weboberflächen von Proxmox, Frigate, AdGuard und Paperless erreichst du über die Dienst-Kacheln der Server-Ansicht (siehe [Dienst-Kacheln mit Popup](#dienst-kacheln-mit-popup-frame_service)). Die Adressen dort (`proxmox.local`, `frigate.local`, `adguard.local`, `paperless.local`) sind Platzhalter.
 
 ## Hinweise
 

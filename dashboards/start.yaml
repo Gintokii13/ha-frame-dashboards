@@ -1979,7 +1979,7 @@ button_card_templates:
         const name = variables.name || (e ? e.attributes.friendly_name : '');
         const key = (e ? e.entity_id : '') + '|' + name;
         (window.__frameSvcs || (window.__frameSvcs = {}))[key] = { name: variables.title || name, icon: variables.icon || (e && e.attributes.icon), status: e ? e.entity_id : null,
-          up: UP, url: variables.url, link: variables.link, info: variables.info, charts: variables.charts };
+          up: UP, url: variables.url, link: variables.link, info: variables.info, charts: variables.charts, search: variables.search };
         fx.load('frame-popup.js');
         const sub = variables.sub || (e ? (hass.formatEntityState ? hass.formatEntityState(e) : s) : '');
         return `<div class="sc${up ? ' is-active' : ''}" style="position:relative;${na ? 'opacity:.45' : ''}" data-svc="${fx.esc(key)}" onpointerdown="this.__p=[event.clientX,event.clientY,Date.now()]" onpointerup="window.__frameSvc && window.__frameSvc(this.dataset.svc,this,event)"><ha-icon icon="${variables.icon || (e && e.attributes.icon) || 'mdi:server'}"></ha-icon><b>${fx.esc(name)}</b><span>${fx.esc(sub)} · Details</span></div>`;
@@ -3289,13 +3289,55 @@ views:
               entity: sensor.adguard_netzwerk_ausgang
               note: seit dem letzten Start
         - entity: binary_sensor.server_paperless_ngx
-          tap_action:
-            action: more-info
-          template: frame_tile
+          template: frame_service
           type: custom:button-card
           variables:
             icon: mdi:file-document-multiple
             name: paperless-ngx
+            title: Paperless
+            url: http://paperless.local:8000
+            link: Paperless öffnen
+            search:
+              script: script.paperless_suche
+              doc_url: http://paperless.local:8000/documents/{id}/details
+              placeholder: In Paperless suchen …
+              name: Paperless
+              recent: Zuletzt hinzugefügt
+            charts:
+            - label: Posteingang
+              entity: sensor.paperless_dokumente_im_posteingang
+              decimals: 0
+              unit: ''
+            - label: CPU
+              entity: sensor.paperless_ngx_cpu_auslastung
+              decimals: 0
+            info:
+            - label: Dokumente
+              entity: sensor.paperless_dokumente_insgesamt
+              unit: ''
+            - label: Im Posteingang
+              entity: sensor.paperless_dokumente_im_posteingang
+              unit: ''
+              note: noch nicht abgearbeitet
+            - label: Läuft
+              entity: sensor.paperless_ngx_betriebszeit
+            - label: Arbeitsspeicher
+              entity: sensor.paperless_ngx_arbeitsspeicher_auslastung
+              of: sensor.paperless_ngx_maximale_arbeitsspeicher_auslastung
+              warn_above: 90
+            - label: Container-Platte
+              entity: sensor.paperless_ngx_massenspeicher_auslastung
+              of: sensor.paperless_ngx_maximale_massenspeicher_auslastung
+              warn_above: 85
+            - label: Ablage (NAS)
+              entity: sensor.nas_paperless_belegt
+              of: sensor.nas_paperless_gesamt
+              decimals: 0
+              warn_above: 85
+            - label: Plausibilität
+              entity: sensor.paperless_plausibilitatsstatus
+            - label: Paperless
+              entity: update.paperless_software
         - entity: binary_sensor.server_pulse
           tap_action:
             action: more-info

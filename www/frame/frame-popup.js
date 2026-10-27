@@ -77,6 +77,25 @@ const CSS = `
   text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
 .go:active { transform: scale(.97); }
 .go ha-icon { --mdc-icon-size: 20px; }
+.srch { padding: 16px 20px 6px; border-bottom: 2px solid var(--line); }
+.sf { display: flex; gap: 8px; }
+.sf input { flex: 1; min-width: 0; font: inherit; font-size: 17px; color: var(--ink); padding: 0 18px; height: 50px; border: 2px solid var(--ink);
+  border-radius: 999px; background: var(--card); outline: none; -webkit-appearance: none; appearance: none; }
+.sf input::placeholder { color: var(--mute); }
+.sf button { all: unset; display: inline-grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: var(--ink);
+  color: var(--paper); cursor: pointer; flex: none; -webkit-tap-highlight-color: transparent; }
+.sf button ha-icon { --mdc-icon-size: 22px; }
+.res { margin: 10px 0 8px; }
+.res-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+.res-h em { font-style: normal; font-size: 12px; color: var(--mute); }
+.doc { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.doc:last-child { border-bottom: 0; }
+.doc:active { background: var(--paper-2); }
+.doc b { display: block; font-size: 16px; font-weight: 800; font-stretch: 90%; }
+.doc small { display: block; margin-top: 2px; font-size: 12px; color: var(--mute); }
+.doc p { margin: 4px 0 0; font-size: 13px; line-height: 1.35; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.doc mark { background: #F9E2C6; color: inherit; border-radius: 3px; padding: 0 2px; }
+.doc p.is-warn, .empty.is-warn { color: var(--alert); }
 @keyframes fade { from { opacity: 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
 @media (max-width: 767px) {
@@ -89,6 +108,8 @@ const CSS = `
   .hd .sub { font-size: 18px; }
   .ic { width: 44px; height: 44px; }
   .col { padding: 14px 16px; }
+  .srch { padding: 14px 16px 4px; }
+  .sf input { font-size: 16px; }
   .ft { padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px)); flex-direction: column; align-items: stretch; }
   .ft span { text-align: center; }
   .go { justify-content: center; }
@@ -262,6 +283,8 @@ const infoRow = (it) => {
     const d = new Date(s.state), ago = Date.now() - d;
     val = ago >= 0 ? (it.ago ? `vor ${since(ago)}` : `seit ${since(ago)}`) : stamp(d);
     note = note || stamp(d);
+  } else if (it.unit != null && live(s) && !isNaN(Number(s.state))) {
+    val = `${nf(s.state, it.decimals || 0)}${it.unit ? ' ' + it.unit : ''}`;
   } else if (domain === 'update' && live(s)) {
     const a = s.attributes;
     warn = s.state === 'on';
@@ -285,6 +308,52 @@ const info = () => {
   root.querySelector('.info').innerHTML = list ? `<div class="card">${list}</div>` : '<div class="empty">Keine Infos hinterlegt.</div>';
 };
 
+// Suche ueber ein HA-Skript mit Rueckgabe (z. B. script.paperless_suche), Token bleibt in Home Assistant
+const DATE = (d) => { const x = new Date(d); return isNaN(x) ? '' : x.toLocaleDateString(LANG, { day: 'numeric', month: 'short', year: 'numeric' }); };
+const hl = (h) => esc(String(h).replace(/\s+/g, ' ').trim())
+  .replace(/&lt;(?:b|em|mark|span class=&quot;match&quot;)&gt;/g, '<mark>').replace(/&lt;\/(?:b|em|mark|span)&gt;/g, '</mark>');
+let seq = 0;
+const search = async (q) => {
+  const sc = cur && cur.cfg.search, box = root && root.querySelector('.res');
+  if (!sc || !box || !hass()) return;
+  const id = ++seq, [domain, service] = String(sc.script).split('.');
+  box.innerHTML = `<div class="empty">${q ? 'Suche …' : 'Lade …'}</div>`;
+  let res;
+  try {
+    res = await hass().callWS({ type: 'call_service', domain, service, service_data: { query: q }, return_response: true });
+  } catch (e) {
+    if (id === seq && box.isConnected) box.innerHTML = `<div class="empty is-warn">Suche fehlgeschlagen: ${esc(e && (e.message || e.code) || e)}</div>`;
+    return;
+  }
+  if (id !== seq || !box.isConnected) return;
+  const r = (res && res.response) || {}, docs = r.dokumente || [];
+  if (r.status && r.status !== 200) {
+    box.innerHTML = `<div class="empty is-warn">${esc(sc.name || 'Dienst')} antwortet mit Fehler ${esc(r.status)}${r.status === 401 || r.status === 403 ? ' – Token prüfen' : ''}.</div>`;
+    return;
+  }
+  const head = q ? `${nf(r.anzahl || docs.length)} Treffer` : (sc.recent || 'Zuletzt hinzugefügt');
+  const more = q && r.anzahl > docs.length ? `<em>die ersten ${docs.length}</em>` : '';
+  const url = (d) => String(sc.doc_url || '').replace('{id}', encodeURIComponent(d.id));
+  box.innerHTML = `<div class="res-h"><span class="lbl">${esc(head)}</span>${more}</div>` + (docs.length ? docs.map((d) =>
+    `<a class="doc" href="${esc(url(d))}" target="_blank" rel="noopener noreferrer"><b>${esc(d.title || 'Ohne Titel')}</b>`
+    + `<small>${[d.korrespondent, d.typ, DATE(d.datum)].filter(Boolean).map(esc).join(' · ')}</small>`
+    + `${d.treffer ? `<p>${hl(d.treffer)}</p>` : ''}</a>`).join('') : `<div class="empty">Nichts gefunden${q ? ` für „${esc(q)}“` : ''}.</div>`);
+};
+const searchUi = (sc) => `<div class="srch"><form class="sf" role="search"><input type="search" enterkeyhint="search" autocomplete="off" autocorrect="off"
+ placeholder="${esc(sc.placeholder || 'Suchen …')}" aria-label="${esc(sc.placeholder || 'Suchen')}"><button type="submit" aria-label="Suchen"><ha-icon icon="mdi:magnify"></ha-icon></button></form><div class="res"></div></div>`;
+const searchWire = () => {
+  const f = root.querySelector('.sf'); if (!f) return;
+  const inp = f.querySelector('input');
+  let t = null;
+  f.addEventListener('submit', (ev) => { ev.preventDefault(); clearTimeout(t); search(inp.value.trim()); inp.blur(); });
+  inp.addEventListener('input', () => {
+    clearTimeout(t);
+    const q = inp.value.trim();
+    if (q.length >= 3 || !q) t = setTimeout(() => search(q), 600);
+  });
+  search('');
+};
+
 const open = (cfg) => {
   close();
   host = document.createElement('frame-popup');
@@ -295,7 +364,7 @@ const open = (cfg) => {
   root.innerHTML = `<style>${CSS}</style><div class="bd"><section class="sh" role="dialog" aria-modal="true" aria-label="${esc(cfg.name)}">
 <header class="hd"><span class="ic"><ha-icon icon="${esc(cfg.icon || 'mdi:server')}"></ha-icon></span><div><b>${esc(cfg.name)}</b><span class="sub"></span></div>
 <button type="button" class="x" aria-label="Schließen"><ha-icon icon="mdi:close"></ha-icon></button></header>
-<div class="bdy"><div class="col"><div class="sec"><span class="lbl">Verlauf</span><span class="rng"><button type="button" data-h="24" class="is-on">24 Std</button><button type="button" data-h="168">7 Tage</button></span></div>
+${cfg.search ? searchUi(cfg.search) : ''}<div class="bdy"><div class="col"><div class="sec"><span class="lbl">Verlauf</span><span class="rng"><button type="button" data-h="24" class="is-on">24 Std</button><button type="button" data-h="168">7 Tage</button></span></div>
 <div class="hist"><div class="empty">Lade Verlauf …</div></div></div>
 <div class="col"><div class="sec"><span class="lbl">Info</span></div><div class="info"></div></div></div>
 ${cfg.url ? `<footer class="ft"><span>${esc(label)}</span><a class="go" href="${esc(cfg.url)}" target="_blank" rel="noopener noreferrer">${esc(cfg.link || 'Zur Weboberfläche')}<ha-icon icon="mdi:open-in-new"></ha-icon></a></footer>` : ''}
@@ -312,7 +381,7 @@ ${cfg.url ? `<footer class="ft"><span>${esc(label)}</span><a class="go" href="${
   window.addEventListener('keydown', keyFn);
   window.addEventListener('location-changed', close);
   document.body.appendChild(host);
-  head(); info(); history();
+  head(); info(); history(); searchWire();
   let n = 0;
   timer = setInterval(() => {
     if (!cur) return;

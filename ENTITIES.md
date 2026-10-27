@@ -2,7 +2,7 @@
 
 Alle Entity-IDs in diesem Repo sind **Platzhalter**. Sie folgen dem Schema `domain.raum_funktion` und müssen an die eigenen IDs angepasst werden – am einfachsten per Suchen & Ersetzen in den Dashboard-Dateien, bevor sie im Raw-Editor eingefügt werden.
 
-Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (start, uebersicht, klima-heizung, einkauf-liste, szenen).
+Insgesamt 453 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (start, uebersicht, klima-heizung, einkauf-liste, szenen).
 
 ## `person` (2)
 
@@ -129,7 +129,7 @@ Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `climate.vtherm_wohnzimmer` | klima-heizung, start, uebersicht |
 | `climate.wohnzimmer_gesamt` | klima-heizung |
 
-## `sensor` (205)
+## `sensor` (216)
 
 | Entität | Dashboards |
 |---|---|
@@ -251,6 +251,17 @@ Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `sensor.nas_aufnahmen_ssd_gesamt` | start |
 | `sensor.nas_backup_belegt` | start |
 | `sensor.nas_backup_gesamt` | start |
+| `sensor.nas_paperless_belegt` | start |
+| `sensor.nas_paperless_gesamt` | start |
+| `sensor.paperless_dokumente_im_posteingang` | start |
+| `sensor.paperless_dokumente_insgesamt` | start |
+| `sensor.paperless_ngx_arbeitsspeicher_auslastung` | start |
+| `sensor.paperless_ngx_betriebszeit` | start |
+| `sensor.paperless_ngx_cpu_auslastung` | start |
+| `sensor.paperless_ngx_massenspeicher_auslastung` | start |
+| `sensor.paperless_ngx_maximale_arbeitsspeicher_auslastung` | start |
+| `sensor.paperless_ngx_maximale_massenspeicher_auslastung` | start |
+| `sensor.paperless_plausibilitatsstatus` | start |
 | `sensor.power_production_now` | start |
 | `sensor.saugroboter_leistung` | start |
 | `sensor.schlafzimmer_absolute_feuchte` | klima-heizung |
@@ -401,7 +412,7 @@ Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `valve.entnahmedose` | start, uebersicht |
 | `valve.heckenbewasserung` | start, uebersicht |
 
-## `script` (12)
+## `script` (13)
 
 | Entität | Dashboards |
 |---|---|
@@ -410,6 +421,7 @@ Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `script.bewasserung_zone_1_start` | start, uebersicht |
 | `script.bewasserung_zone_2_start` | start, uebersicht |
 | `script.einkauf_artikel_umschalten` | einkauf-liste |
+| `script.paperless_suche` | paperless-suche, start |
 | `script.rolllaeden_abend` | start, uebersicht |
 | `script.rolllaeden_morgen` | start, uebersicht |
 | `script.rolllaeden_schlafraeume_nacht` | start, szenen, uebersicht |
@@ -529,13 +541,14 @@ Insgesamt 440 Entitäten. Spalte „Dashboards“: wo die Entität vorkommt (sta
 | `button.teamspeak_starten` | start, uebersicht |
 | `button.teamspeak_stoppen` | start, uebersicht |
 
-## `update` (3)
+## `update` (4)
 
 | Entität | Dashboards |
 |---|---|
 | `update.frigate_server` | start |
 | `update.frigate_update` | start |
 | `update.host_proxmox` | start |
+| `update.paperless_software` | start |
 
 ## `weather` (1)
 
