@@ -17,6 +17,50 @@ Vier Home-Assistant-Dashboards im **Frame-Design** („paper & ink“, nach [slc
 | [`www/frame/frame.js`](www/frame/frame.js) | Hilfsfunktionen für die Start-Karten (Formatierung, Zustände, Service-Aufrufe) | – |
 | [`www/frame/frame-layout.js`](www/frame/frame-layout.js) | Erweiterung für layout-card: `height`, `padding`, `margin` und eigene CSS-Variablen auch in `mediaquery` | – |
 
+## Dynamik auf der Startseite
+
+Zwei Karten auf **Start** sind neu gegenüber ha-frame-starter und zeigen nicht feste Kacheln, sondern das, was gerade wichtig ist.
+
+### „Jetzt“ (`frame_now`)
+
+Eine Karte, die sich nach der Lage im Haus füllt – und leer bleibt, wenn nichts los ist („**Alles ruhig.** Nichts läuft, nichts steht offen.“). Die Einträge erscheinen in dieser Reihenfolge, höchstens `max` (Standard 5), der Rest als „+ N weitere“:
+
+1. **Warnungen:** offene Fenster und Türen mit Dauer („seit 25 Min.“), Garagen- und Carport-Tor offen oder in Fahrt, Störung eines Haushaltsgeräts, Raumfühler eines Thermostats offline.
+2. **Geräte:** Waschmaschine, Trockner, Geschirrspüler laufen mit Restzeit und voraussichtlichem Ende („noch 42 Min. · fertig ca. 14:35“), danach „ist fertig · ausräumen“.
+3. **Musik:** was gerade spielt (oder seit weniger als 30 Minuten pausiert ist), mit Cover, Raum, Play/Pause und Weiter.
+4. **Hinweise:** Müllabfuhr heute oder morgen („heute Abend rausstellen“), Hausakku unter 10 %, schwache Gerätebatterien unter 15 % (Handys, Tablets und Uhren ausgenommen).
+
+Darunter steht immer die **Hauslage** – vier Kacheln, die sich selbst zusammensuchen, und per Tippen in die passende Ansicht springen:
+
+| Kachel | Zeigt | Findet die Entitäten über |
+|---|---|---|
+| Heizung | „2 Räume heizen“ bzw. „Heizung ruht“, dazu der kälteste Raum unter Soll („Bad 19,2° → 21,0°“) | alle `climate.vtherm_*` |
+| Licht | Anzahl eingeschalteter Lichter und die ersten zwei Namen | alle `light.*` (ohne Lichtgruppen) |
+| Rollläden | „Alle offen“, „Alle zu“, „3 offen · 2 Spalt“ oder „Rollläden fahren“ | alle `cover.*_langsam` |
+| Strom | Verbrauch im Haus und Sonne | `sensor.hausverbrauch`, `sensor.wechselrichter_wirkleistung` |
+
+Ganz unten: der nächste Termin mit Person und der nächste Abholtag.
+
+Einstellbar über die `variables` der Karte: `contacts` (Fenster/Türen), `gates` (Tore), `appliances` (Gerät mit Zustands- und Restzeit-Sensor), `media` (Player mit Raumname), `waste` (Abfall-Sensoren, Datum im Zustand als `TT.MM.JJJJ`), `battery` (Hausakku), `max`. Die Muster der Hauslage stehen direkt im Template – wer andere Namen nutzt, passt dort `climate.vtherm_`, `_langsam` und die beiden Strom-Sensoren an.
+
+### Licht (`frame_lights`)
+
+Statt einer festen Kachel pro Lampe ein Raster, das sich nach dem Zustand richtet:
+
+- **Eingeschaltete Lichter stehen vorn**, danach ausgeschaltete bis zur Zahl `slots` (Standard 8). Sind mehr Lichter an, wächst das Raster mit.
+- Lichter mit `auto: true` (Flur, Treppenhaus, außen – alles, was über Bewegung oder Zeitplan läuft) erscheinen **nur, solange sie an sind**.
+- Der Hintergrund jeder Kachel füllt sich mit der **Helligkeit** („Wohnzimmer · 40 %“).
+- **Tippen** schaltet sofort um, **Halten** (gut eine halbe Sekunde) öffnet die Detailansicht.
+- Kopfzeile: „3 an · alle aus“ schaltet alles Eingeschaltete mit einem Tipp aus; ist alles aus, steht dort „alles aus · meist genutzt“.
+
+```yaml
+variables:
+  slots: 8
+  lights:
+    - { e: light.wohnzimmer_komode, n: Komode, r: Wohnzimmer }
+    - { e: light.flur_oben, n: Flur oben, r: Flur, auto: true }
+```
+
 ## Voraussetzungen
 
 Über HACS:
@@ -60,7 +104,7 @@ Das Frame-Design, die Runtime und die Kartenvorlagen stammen von **Chris Jahn** 
 |---|---|
 | `www/frame/frame.js` | **Original von Chris Jahn** – die Frame-Runtime aus ha-frame-starter, Stand [`1becc23`](https://github.com/slcr/ha-frame-starter/commit/1becc23) vom 17.10.2026, gekürzt auf die hier genutzten Helfer. Keine eigenen Änderungen am Code. Neuere Versionen gibt es im Original-Repo. |
 | `themes/frame/frame.yaml` | Theme **Frame** aus ha-frame-starter; **Frame Haus** (für das ganze HA) ist neu darauf aufgebaut. |
-| `dashboards/start.yaml` | 16 der 23 Kartenvorlagen (`button_card_templates`) stammen aus ha-frame-starter und sind angepasst: `frame`, `frame_rail`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_stats`, `frame_heading`, `frame_energy`. Neu sind `frame_now`, `frame_tile`, `frame_gate`, `frame_news`, `frame_room`, `frame_room_heading`, `frame_lights` sowie Ansichten, Karten und deutsche Texte. |
+| `dashboards/start.yaml` | 16 der 23 Kartenvorlagen (`button_card_templates`) stammen aus ha-frame-starter und sind angepasst: `frame`, `frame_rail`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_stats`, `frame_heading`, `frame_energy`. Neu sind `frame_now` und `frame_lights` (die dynamischen Karten, siehe [Dynamik auf der Startseite](#dynamik-auf-der-startseite)), `frame_tile`, `frame_gate`, `frame_news`, `frame_room`, `frame_room_heading` sowie Ansichten, Karten und deutsche Texte. |
 | `www/frame/frame-layout.js` | Neu (Erweiterung für layout-card). |
 | `dashboards/uebersicht.yaml`, `klima-heizung.yaml`, `einkauf-liste.yaml`, `scripts/szenen.yaml` | Neu, im Frame-Look gestaltet. |
 
