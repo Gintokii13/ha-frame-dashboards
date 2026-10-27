@@ -1,6 +1,6 @@
-# Kartenvorlagen frame, frame_rail, frame_clock, frame_weather, frame_people, frame_next, frame_agenda,
-# frame_scene, frame_light, frame_cover, frame_lock, frame_openings, frame_rooms, frame_stats,
-# frame_heading und frame_energy nach https://github.com/slcr/ha-frame-starter (Chris Jahn, MIT).
+# Kartenvorlagen frame, frame_clock, frame_weather, frame_people, frame_next, frame_agenda, frame_scene,
+# frame_light, frame_cover, frame_lock, frame_openings, frame_rooms und frame_heading nach
+# https://github.com/slcr/ha-frame-starter (Chris Jahn, MIT), angepasst. Alle uebrigen Vorlagen sind neu.
 # Dashboard "Start" (Speicher-Dashboard)
 button_card_templates:
   frame:
@@ -1293,105 +1293,6 @@ button_card_templates:
       .sc ha-icon { display: none !important; }
       .sc b { font-size: 14px; font-stretch: 88%; }
       }
-  frame_news:
-    custom_fields:
-      body: |-
-        [[[
-        const fx = variables.fx; if (!fx) return '';
-        const now = Date.now(), msgs = [];
-        const RUN = ['starting','running','ending','rinse','anti_wrinkle'];
-        const ok = (s) => !!s && !['unavailable','unknown'].includes(s.state);
-        const nm = (s) => String(s.attributes.friendly_name || s.entity_id).replace(/^Kontakt /, '');
-        variables.contacts.forEach((id) => { const s = states[id]; if (s && s.state === 'on') msgs.push({ id, rank: 1, kind: 'warn', icon: 'mdi:window-open-variant', title: nm(s) + ' offen', sub: 'seit ' + fx.dur(now - new Date(s.last_changed)) }); });
-        variables.gates.forEach((g) => { const s = states[g.id]; if (s && ['open','opening','closing'].includes(s.state)) msgs.push({ id: g.id, rank: 0, kind: 'warn', icon: 'mdi:garage-open-variant', title: g.name + (s.state === 'open' ? ' offen' : s.state === 'opening' ? ' öffnet' : ' schließt'), sub: s.state === 'open' ? 'seit ' + fx.dur(now - new Date(s.last_changed)) : 'fährt gerade' }); });
-        variables.appliances.forEach((a) => {
-          const s = states[a.id]; if (!ok(s)) return;
-          const r = states[a.remaining], m = ok(r) && !isNaN(parseFloat(r.state)) ? Math.round(parseFloat(r.state)) : null;
-          if (RUN.includes(s.state)) msgs.push({ id: a.id, rank: 4, kind: 'info', icon: a.icon, title: a.name + ' läuft', sub: m != null ? 'noch ' + m + ' Min.' : 'Programm aktiv' });
-          else if (['finished','completed'].includes(s.state)) msgs.push({ id: a.id, rank: 2, kind: 'done', icon: a.icon, title: a.name + ' ist fertig', sub: 'kann ausgeräumt werden' });
-          else if (['error','fault'].includes(s.state)) msgs.push({ id: a.id, rank: 0, kind: 'alert', icon: a.icon, title: a.name + ': Störung', sub: 'bitte nachsehen' });
-        });
-        variables.waste.forEach((w) => {
-          const s = states[w.id], m = s && String(s.state).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); if (!m) return;
-          const t = new Date(); t.setHours(0, 0, 0, 0);
-          const days = Math.round((new Date(+m[3], +m[2] - 1, +m[1]) - t) / 864e5);
-          if (days === 0 || days === 1) msgs.push({ id: w.id, rank: days === 0 ? 1 : 3, kind: days === 0 ? 'warn' : 'info', icon: w.icon, title: w.name + (days === 0 ? ' heute' : ' morgen'), sub: days === 0 ? 'wird heute abgeholt' : 'heute Abend rausstellen' });
-        });
-        const b = fx.num(variables.battery, 0);
-        if (b && b.raw < 10) msgs.push({ id: variables.battery, rank: 3, kind: 'warn', icon: 'mdi:battery-low', title: 'Hausakku ' + b.v + ' %', sub: 'niedriger Ladestand' });
-        msgs.sort((a, c) => a.rank - c.rank);
-        const row = (m) => `<div class="nw is-${m.kind}" data-id="${fx.esc(m.id)}" onpointerup="__frameInfo(this)"><ha-icon icon="${m.icon}"></ha-icon><span><b>${fx.esc(m.title)}</b><small>${fx.esc(m.sub)}</small></span></div>`;
-        const list = msgs.length
-          ? msgs.slice(0, variables.max).map(row).join('') + (msgs.length > variables.max ? `<div class="nw-more">+ ${msgs.length - variables.max} weitere</div>` : '')
-          : '<div class="nw-quiet"><b>Alles im Blick.</b><span>Keine Hausmeldungen.</span></div>';
-        return `<div class="blk nw-box"><div class="label">Heute wichtig</div>${list}</div>`;
-        ]]]
-    template: frame
-    update_timer: 60s
-    variables:
-      appliances:
-      - icon: mdi:washing-machine
-        id: sensor.waschmaschine_zustand
-        name: Waschmaschine
-        remaining: sensor.waschmaschine_verbleibende_zeit
-      - icon: mdi:tumble-dryer
-        id: sensor.trockner_zustand
-        name: Trockner
-        remaining: sensor.trockner_verbleibende_zeit
-      - icon: mdi:dishwasher
-        id: sensor.geschirrspuler_zustand
-        name: Geschirrspüler
-        remaining: sensor.geschirrspuler_verbleibende_zeit
-      battery: sensor.batterien_batterieladung
-      contacts:
-      - binary_sensor.kontakt_haustur_contact
-      - binary_sensor.kontakt_terrassentur_contact
-      - binary_sensor.kontakt_fenster_spule_contact
-      - binary_sensor.fenster_kontakt_1
-      - binary_sensor.fenster_kontakt_2
-      - binary_sensor.kontakt_werkstatt
-      gates:
-      - id: cover.garagentor
-        name: Garage
-      - id: cover.carport_tor
-        name: Carport
-      max: 4
-      waste:
-      - icon: mdi:trash-can
-        id: sensor.waste_collection_schedule_restmulltonne
-        name: Restmüll
-      - icon: mdi:leaf
-        id: sensor.waste_collection_schedule_biotonne
-        name: Biotonne
-      - icon: mdi:newspaper
-        id: sensor.waste_collection_schedule_papiertonne
-        name: Papier
-      - icon: mdi:recycle
-        id: sensor.waste_collection_schedule_wertstofftonne
-        name: Wertstoff
-    extra_styles: |-
-      .num { font-stretch: 62%; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-      .blk { position: relative; background: var(--card); border-radius: var(--r); padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
-      .st .num { font-size: 44px; line-height: .9; white-space: nowrap; }
-      .st .num small { font-size: 18px; margin-left: 3px; font-stretch: 80%; }
-      .st.is-warn .num { color: var(--alert); }
-      .st.is-na .num { color: var(--mute); }
-      .nw-box { gap: 8px; }
-      .nw { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--paper); cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
-      .nw.is-warn { background: var(--warm); }
-      .nw.is-alert { background: var(--warm); box-shadow: inset 3px 0 0 var(--alert); }
-      .nw.is-done { background: var(--ink); color: var(--paper); }
-      .nw.is-done small { color: rgb(242 238 230 / .7); }
-      .nw ha-icon { --mdc-icon-size: 22px; width: 22px; height: 22px; flex: none; }
-      .nw > span { flex: 1; min-width: 0; }
-      .nw b { display: block; font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .nw small { display: block; font-size: 13px; color: var(--ink-2); }
-      .nw-more { font-size: 13px; font-weight: 700; color: var(--mute); }
-      .nw-quiet b { display: block; font-family: var(--serif); font-size: 30px; font-weight: 400; line-height: 1.05; }
-      .nw-quiet span { display: block; margin-top: 4px; font-size: 14px; color: var(--mute); }
-      .rh-sum .num { font-size: 28px; color: var(--ink); }
-      .st .num { font-size: 38px; }
-      .nw { padding: 8px 12px; }
   frame_room_heading:
     custom_fields:
       body: |-
@@ -1670,9 +1571,69 @@ button_card_templates:
             + (ww ? `<button type="button" class="en-ww${wwOn ? ' is-on' : ''}" onpointerup="__frameCall('switch','toggle',{entity_id:'switch.warmwasser_nachheizen'})"><ha-icon icon="mdi:water-boiler"></ha-icon><span>Warmwasser nachheizen</span><b>${wwOn ? 'an' : 'aus'}</b></button>` : '')
             + `</div>`;
         }
+        if (part === 'devices') {
+          const back = window.__frameEnDay ? 1 : 0;
+          const prefs = fx.cached('__frameEnPrefs', 'prefs', 30, () => hass.callWS({ type: 'energy/get_prefs' }));
+          const shell = (inner) => `<div class="en-dev">${inner}</div>`;
+          if (!prefs) return shell('<div class="en-quiet">Lade Energiedaten …</div>');
+          const S = { gin: [], gout: [], pv: [], bin: [], bout: [] };
+          (prefs.energy_sources || []).forEach((s) => {
+            if (s.type === 'grid') {
+              if (s.stat_energy_from) S.gin.push(s.stat_energy_from);
+              if (s.stat_energy_to) S.gout.push(s.stat_energy_to);
+              (s.flow_from || []).forEach((f) => f.stat_energy_from && S.gin.push(f.stat_energy_from));
+              (s.flow_to || []).forEach((f) => f.stat_energy_to && S.gout.push(f.stat_energy_to));
+            } else if (s.type === 'solar' && s.stat_energy_from) S.pv.push(s.stat_energy_from);
+            else if (s.type === 'battery') { if (s.stat_energy_from) S.bout.push(s.stat_energy_from); if (s.stat_energy_to) S.bin.push(s.stat_energy_to); }
+          });
+          const devs = (prefs.device_consumption || []).filter((d) => d.stat_consumption && !d.included_in_stat);
+          const ids = [...new Set([].concat(S.gin, S.gout, S.pv, S.bin, S.bout, devs.map((d) => d.stat_consumption)))];
+          const d0 = new Date(); d0.setHours(0, 0, 0, 0); d0.setDate(d0.getDate() - back);
+          const t0 = d0.getTime(), d1 = new Date(d0); d1.setDate(d1.getDate() + 1); const t1 = d1.getTime();
+          const hrs = Math.ceil((Date.now() - t0) / 3600000) + 1;
+          const H = fx.hist(ids, hrs, back ? 30 : 5, '5minute', ['change']);
+          if (!ids.some((id) => H[id])) return shell('<div class="en-quiet">Lade Energiedaten …</div>');
+          const per = (id) => { const o = new Array(24).fill(0); (H[id] || []).forEach((r) => { const t = typeof r.start === 'number' ? r.start : Date.parse(r.start); if (t >= t0 && t < t1 && r.change != null) o[new Date(t).getHours()] += r.change; }); return o; };
+          const add = (list) => { const o = new Array(24).fill(0); list.forEach((id) => per(id).forEach((v, i) => { o[i] += v; })); return o; };
+          const gin = add(S.gin), gout = add(S.gout), pv = add(S.pv), bin = add(S.bin), bout = add(S.bout);
+          const cons = gin.map((v, i) => Math.max(0, v + pv[i] + bout[i] - gout[i] - bin[i]));
+          const D = devs.map((d) => { const a = per(d.stat_consumption); return { n: d.name || fx.nameOf(d.stat_consumption), id: d.stat_consumption, a, v: a.reduce((x, y) => x + y, 0) }; });
+          const meas = new Array(24).fill(0); D.forEach((d) => d.a.forEach((v, i) => { meas[i] += v; }));
+          const un = cons.map((c, i) => Math.max(0, c - meas[i]));
+          const sum = (a) => a.reduce((x, y) => x + y, 0);
+          const total = sum(cons), unT = sum(un), share = total > 0 ? unT / total : 0;
+          const nf = (x, d) => x.toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
+          const K = (v) => (v >= 10 ? nf(v, 1) : nf(v, 2)) + ' kWh';
+          const pad = (n) => String(n).padStart(2, '0');
+          const nowH = back ? 23 : new Date().getHours();
+          const top = Math.max(...cons, 0.1);
+          const cols = cons.map((c, i) => {
+            if (i > nowH) return '<span class="en-col is-fut"><i class="f"></i></span>';
+            const m = Math.max(0, c - un[i]);
+            return `<span class="en-col${!back && i === nowH ? ' is-now' : ''}"><i class="m" style="height:${(m / top * 100).toFixed(1)}%"></i><i class="u" style="height:${(un[i] / top * 100).toFixed(1)}%"></i></span>`;
+          }).join('');
+          const tips = cons.slice(0, nowH + 1).map((c, i) => ({ i, x: (i + 0.5) / 24 * 100,
+            h: `${pad(i)}–${pad(i + 1)} Uhr · <b>${K(c)}</b>${un[i] >= 0.01 ? ` · nicht erfasst ${K(un[i])}` : ''}` }));
+          const peak = un.reduce((b, v, i) => (v > un[b] ? i : b), 0);
+          const note = unT >= 0.5 && un[peak] >= 0.5 ? `<div class="en-note">Meiste Lücke ${pad(peak)}–${pad(peak + 1)} Uhr: ${K(un[peak])} ohne Zuordnung</div>` : '';
+          const list = D.filter((d) => d.v >= 0.005).sort((a, b) => b.v - a.v);
+          const shown = list.slice(0, 8), rest = list.slice(8);
+          const max = Math.max(unT, ...shown.map((d) => d.v), 0.01);
+          const row = (n, v, cls, id) => `<div class="en-dv${cls}"${id ? ` data-id="${id}" onpointerup="__frameInfo(this)"` : ''}><span class="en-ln">${fx.esc(n)}</span><b>${K(v)}</b><i class="en-lb"><i style="width:${Math.max(2, Math.round(v / max * 100))}%"></i></i></div>`;
+          const rows = [{ n: 'Nicht erfasst', v: unT, un: true }].concat(shown).sort((a, b) => b.v - a.v)
+            .map((d) => (d.un ? row(d.n, d.v, ' is-un') : row(d.n, d.v, '', d.id))).join('')
+            + (rest.length ? `<div class="en-more">+ ${rest.length} weitere · ${K(sum(rest.map((d) => d.v)))}</div>` : '');
+          const toggle = `<button type="button" class="en-day" onpointerup="window.__frameEnDay=${back ? 0 : 1};this.getRootNode().host.requestUpdate('_config')">${back ? '← Heute' : 'Gestern →'}</button>`;
+          return shell(`<div class="en-dev-l">
+            <div class="en-dh"><div><span class="en-l">Verbrauch ${back ? 'gestern' : 'heute'} ${toggle}</span><b class="num en-mid">${nf(total, 1)}<small>kWh</small></b></div>
+            <div class="en-un"><span class="en-l">Nicht erfasst</span><b class="num en-mid">${nf(unT, 1)}<small>kWh · ${Math.round(share * 100)} %</small></b></div></div>
+            <div class="en-chart ch-plot"${fx.tipPlot(tips)}><div class="bars">${cols}</div><div class="en-ax"><span>0</span><span>6</span><span>12</span><span>18</span></div>${fx.TIP}</div>
+            <div class="en-leg"><span><i class="m"></i>Geräte gemessen</span><span><i class="u"></i>nicht erfasst</span></div>${note}
+          </div><div class="en-dev-r"><span class="en-l">Nach Geräten</span><div class="en-list">${rows}</div></div>`);
+        }
         return '';
         ]]]
-    extra_styles: |-
+    extra_styles: |
       .num { font-stretch: 62%; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
       .num small { font-size: .42em; margin-left: 3px; font-stretch: 80%; letter-spacing: 0; }
       .en-l { font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--mute); white-space: nowrap; }
@@ -1742,6 +1703,46 @@ button_card_templates:
       }
       .en-lh .en-l { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
       .en-lh .num { flex: none; }
+      .en-dev { box-sizing: border-box; background: var(--card); border-radius: 18px; padding: 16px 18px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px 32px; }
+      .en-dev > .en-quiet { grid-column: 1 / -1; }
+      .en-dev-l, .en-dev-r { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+      .en-dh { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+      .en-dh > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+      .en-dh .en-l { display: flex; align-items: center; gap: 10px; }
+      .en-un { text-align: right; align-items: flex-end; }
+      .en-un .num { color: #B9581A; }
+      .en-day { all: unset; box-sizing: border-box; height: 22px; padding: 0 9px; border-radius: 11px; background: var(--paper); color: var(--ink-2); font: 700 11px var(--sans); letter-spacing: .04em; text-transform: none; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+      .en-day:active { background: var(--ink); color: var(--card); }
+      .en-chart { height: 168px; pointer-events: auto; }
+      .en-chart .bars { position: absolute; inset: 0 0 18px 0; display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; }
+      .en-col { display: flex; flex-direction: column-reverse; height: 100%; min-width: 0; }
+      .en-col i { display: block; width: 100%; flex: none; }
+      .en-col .m { background: var(--ink-2); border-radius: 0 0 2px 2px; }
+      .en-col .u { background: var(--warm-2); border-radius: 3px 3px 0 0; }
+      .en-col.is-now i { opacity: .55; }
+      .en-col.is-fut .f { height: 3px; background: var(--paper-2); border-radius: 2px; }
+      .en-col.is-sel i { filter: brightness(.82); }
+      .en-ax { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; display: grid; grid-template-columns: repeat(4, 1fr); font-size: 11px; font-weight: 700; color: var(--mute); font-variant-numeric: tabular-nums; }
+      .en-leg { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+      .en-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+      .en-leg i.m { background: var(--ink-2); }
+      .en-leg i.u { background: var(--warm-2); }
+      .en-note { font-family: var(--serif); font-size: 20px; line-height: 1.15; color: var(--ink-2); }
+      .en-dv { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 4px; column-gap: 10px; row-gap: 5px; align-items: center; cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+      .en-dv b { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .en-dv .en-lb { grid-column: 1 / 3; }
+      .en-dv.is-un { cursor: default; background: var(--warm); margin: 0 -10px; padding: 8px 10px; border-radius: 10px; }
+      .en-dv.is-un .en-lb { background: rgb(255 255 255 / .6); }
+      .en-dv.is-un .en-lb > i { background: var(--warm-2); }
+      .en-more { font-size: 13px; font-weight: 700; color: var(--mute); }
+      @media (max-width: 1199px) {
+      .en-dev { grid-template-columns: minmax(0, 1fr); }
+      }
+      @media (max-width: 767px) {
+      .en-dev { padding: 14px; border-radius: 16px; }
+      .en-chart { height: 140px; }
+      .en-chart .bars { gap: 2px; }
+      }
     template: frame
     variables:
       loads: []
@@ -2891,26 +2892,33 @@ views:
       type: history-graph
       view_layout:
         grid-area: graph
+    - type: custom:button-card
+      template: frame_energy
+      update_timer: 60s
+      variables:
+        part: devices
+      view_layout:
+        grid-area: devices
     layout:
       box-sizing: border-box
       card_margin: 0
       grid-gap: 20px
-      grid-template-areas: '"now now" "today loads" "graph loads"'
+      grid-template-areas: '"now now" "today loads" "graph loads" "devices devices"'
       grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr)
-      grid-template-rows: 170px auto minmax(0, 1fr)
+      grid-template-rows: 170px auto minmax(280px, 1fr) auto
       height: 100vh
       margin: 0
       mediaquery:
         '(max-width: 767px)':
-          grid-template-areas: '"now" "today" "loads" "graph"'
+          grid-template-areas: '"now" "today" "loads" "devices" "graph"'
           grid-template-columns: minmax(0, 1fr)
-          grid-template-rows: 250px auto auto 300px
+          grid-template-rows: 250px auto auto auto 300px
           height: auto
           overflow-y: visible
           padding: 16px
         '(max-width: 1023px)':
-          grid-template-areas: '"now now" "today loads" "graph graph"'
-          grid-template-rows: 170px auto auto
+          grid-template-areas: '"now now" "today loads" "graph graph" "devices devices"'
+          grid-template-rows: 170px auto auto auto
           height: auto
           overflow-y: visible
       overflow-y: auto
@@ -3358,6 +3366,7 @@ views:
           variables:
             icon: mdi:hedge-trimmer
             name: Hecke
+          icon: mdi:forest
         - entity: valve.entnahmedose
           tap_action:
             action: toggle

@@ -84,11 +84,19 @@ Eine Karte pro Raum mit allem, was dort steuerbar ist:
 
 `frame_room_heading` ist die passende Abschnittsüberschrift mit Kurzfassung („21,3° · Soll 21,0° · 48 % · heizt · 2 von 4 Lichtern an“).
 
+### Energie (`frame_energy`)
+
+Die Energie-Ansicht ist eine eigene Karte in vier Teilen (`variables.part`):
+
+- **`now`** – Stromfluss jetzt: Sonne, Haus, Netz (Bezug oder Einspeisung) und Akku.
+- **`today`** – der Tag in Zahlen: Verbrauch, Sonnenertrag, Eigenverbrauch, Autarkie, Netzbezug, Einspeisung, Akku.
+- **`loads`** – „Wer gerade Strom braucht“: die Verbraucher aus der Liste, die gerade Leistung ziehen, dazu der Schalter „Warmwasser nachheizen“.
+- **`devices`** – **Verbrauch nach Geräten**, stündlich für heute oder gestern (Umschalter). Die Karte liest die Energie-Einstellungen von Home Assistant (Netz, Solar, Akku, einzelne Geräte), rechnet daraus den Hausverbrauch je Stunde und zeigt, wie viel davon einem Gerät zugeordnet ist. Die Balken trennen **erfasst** und **nicht erfasst**; darunter die acht größten Verbraucher, „Nicht erfasst“ als eigene Zeile und ein Hinweis auf die größte Lücke („Meiste Lücke 18–19 Uhr: 0,8 kWh ohne Zuordnung“). Voraussetzung: ein eingerichtetes Energie-Dashboard mit Geräten.
+
 ### Kleine Bausteine
 
 - `frame_gate` – Garagen- oder Carport-Tor: „Zu · antippen öffnet“, „Offen · seit 12 Min.“, „öffnet …“. Tippen fährt das Tor **mit Sicherheitsabfrage** („Wirklich öffnen: Garage?“), Halten öffnet die Details.
 - `frame_tile` – allgemeine Statuskachel (Server-Dienste, Sicherheit, Garten). Erkennt „aktiv“ selbst an Zuständen wie `on`, `open`, `heating`, `playing`, `home`, `detected`; nicht verfügbare Entitäten werden blass.
-- `frame_news` – Vorgänger der „Jetzt“-Karte, nicht mehr eingebunden.
 
 ### Ansichten und Layout
 
@@ -124,6 +132,20 @@ Dashboard-Ressourcen (Einstellungen → Dashboards → Ressourcen):
 
 Einige Karten verlinken auf weitere Dashboards (`/dashboard-kameras`, `/pflanzen-uebersicht`, `/system-gesundheit`), die nicht Teil dieses Repos sind – Links anpassen oder entfernen.
 
+## Direkt im Browser aufrufen
+
+Jede Ansicht hat einen eigenen Pfad und lässt sich direkt öffnen, als Lesezeichen speichern oder auf dem iPad als Home-Bildschirm-App ablegen (Safari → Teilen → „Zum Home-Bildschirm“). `<ha>` steht für die eigene Adresse, z. B. `homeassistant.local:8123`.
+
+| Dashboard | Ansichten |
+|---|---|
+| Start | `http://<ha>/dashboard-start/start` · `/raeume` · `/energie` · `/server` · `/garten` · `/rolllaeden` · `/sicherheit` |
+| Übersicht (Handy) | `http://<ha>/dashboard-uebersicht/start` · gleiche sieben Ansichten |
+| Klima & Heizung | `http://<ha>/klima-heizung/anlage` · `/raeume` · `/raumklima` · `/warmwasser` · `/technik` |
+| Einkauf | `http://<ha>/einkauf-liste/start` · `/kuehlschrank` · `/vorrat` · `/tiefkuehler` · `/kueche` · `/drogerie` |
+
+- Mit `?disable_km` am Ende (z. B. `…/dashboard-start/start?disable_km`) zeigt kiosk-mode auch auf dem iPad wieder die Kopfzeile – praktisch zum Bearbeiten.
+- Links zu anderen Diensten (Proxmox, Frigate, AdGuard o. Ä.) sind in diesen Dashboards bewusst nicht enthalten. Wer sie möchte, legt in der Server-Ansicht eine `frame_tile` mit `tap_action: {action: url, url_path: "http://…"}` an.
+
 ## Hinweise
 
 - Ohne `frame-layout.js` fällt das Handy-Layout auf das iPad-Layout zurück (layout-card übernimmt in `mediaquery` sonst nur `grid-*`).
@@ -139,7 +161,7 @@ Das Frame-Design, die Runtime und die Kartenvorlagen stammen von **Chris Jahn** 
 |---|---|
 | `www/frame/frame.js` | **Original von Chris Jahn** – die Frame-Runtime aus ha-frame-starter, Stand [`1becc23`](https://github.com/slcr/ha-frame-starter/commit/1becc23) vom 17.10.2026, gekürzt auf die hier genutzten Helfer. Keine eigenen Änderungen am Code. Neuere Versionen gibt es im Original-Repo. |
 | `themes/frame/frame.yaml` | Theme **Frame** aus ha-frame-starter; **Frame Haus** (für das ganze HA) ist neu darauf aufgebaut. |
-| `dashboards/start.yaml` | 16 der 23 Kartenvorlagen (`button_card_templates`) stammen aus ha-frame-starter und sind angepasst: `frame`, `frame_rail`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_stats`, `frame_heading`, `frame_energy` – `frame_rail` hat dabei den iPad-Menü-Knopf und das „Mehr“-Menü dazubekommen (siehe [Weitere Besonderheiten](#weitere-besonderheiten)). Neu sind `frame_now` und `frame_lights` (die dynamischen Karten, siehe [Dynamik auf der Startseite](#dynamik-auf-der-startseite)), `frame_tile`, `frame_gate`, `frame_news`, `frame_room`, `frame_room_heading` sowie Ansichten, Karten und deutsche Texte. |
+| `dashboards/start.yaml` | **Aus ha-frame-starter übernommen und angepasst** (13 von 22 Kartenvorlagen): `frame`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_heading`.<br>**Gleicher Name, weitgehend neu geschrieben:** `frame_rail` (iPad-Menü-Knopf, „Mehr“-Menü, siehe [Weitere Besonderheiten](#weitere-besonderheiten)) und `frame_stats`.<br>**Komplett neu:** `frame_now` und `frame_lights` (siehe [Dynamik auf der Startseite](#dynamik-auf-der-startseite)), `frame_energy` (eigene Energie-Ansicht, teilt mit dem Original nur den Namen), `frame_room`, `frame_room_heading`, `frame_tile`, `frame_gate` – dazu alle Ansichten, Karten und deutschen Texte. |
 | `www/frame/frame-layout.js` | Neu (Erweiterung für layout-card). |
 | `dashboards/uebersicht.yaml`, `klima-heizung.yaml`, `einkauf-liste.yaml`, `scripts/szenen.yaml` | Neu, im Frame-Look gestaltet. |
 

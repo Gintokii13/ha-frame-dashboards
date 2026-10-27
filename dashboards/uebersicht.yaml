@@ -228,7 +228,7 @@ views:
     - entity: cover.carport_tor
       features:
       - type: cover-open-close
-      icon: mdi:carport
+      icon: mdi:garage-variant
       name: Carport
       type: tile
       card_mod:
@@ -1678,7 +1678,8 @@ views:
       icon: mdi:headset
       icon_color: '{{ ''green'' if is_state(''sensor.teamspeak_status'',''running'') else ''red'' }}'
       primary: TeamSpeak-Server
-      secondary: '{{ ''Läuft seit '' ~ (states(''sensor.teamspeak_betriebszeit'') | float(0) / 24) | round(1) ~ '' Tagen'' if is_state(''sensor.teamspeak_status'',''running'') else ''Gestoppt'' }}'
+      secondary: '{% set t = as_datetime(states(''sensor.teamspeak_betriebszeit'')) %}{% if is_state(''sensor.teamspeak_status'',''running'') and t %}{% set d = ((now() - t).total_seconds() / 86400) | round(1)
+        %}Läuft seit {{ d }} {{ ''Tag'' if d == 1 else ''Tagen'' }}{% else %}Gestoppt{% endif %}'
       tap_action:
         action: more-info
       type: custom:mushroom-template-card
@@ -2057,7 +2058,7 @@ views:
     - entity: valve.heckenbewasserung
       features:
       - type: valve-open-close
-      icon: mdi:hedge-trimmer
+      icon: mdi:forest
       name: Hecke
       type: tile
       card_mod:
@@ -2582,7 +2583,7 @@ views:
     - entity: cover.carport_tor
       features:
       - type: cover-open-close
-      icon: mdi:carport
+      icon: mdi:garage-variant
       name: Carport
       type: tile
       card_mod:
