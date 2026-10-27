@@ -61,6 +61,41 @@ variables:
     - { e: light.flur_oben, n: Flur oben, r: Flur, auto: true }
 ```
 
+## Weitere Besonderheiten
+
+### iPad-Kiosk mit Menü-Knopf
+
+Auf dem Wand-iPad soll nichts von Home Assistant zu sehen sein – trotzdem muss man an Einstellungen und andere Dashboards kommen.
+
+- `kiosk_mode` blendet die Kopfzeile **nur auf dem iPad** aus (erkannt am User-Agent, auch iPadOS im Desktop-Modus). Handy und Rechner zeigen Home Assistant normal.
+- Die Navigationsleiste (`frame_rail`) bekommt auf dem iPad oben einen **Menü-Knopf** (☰). Die HA-Seitenleiste wird dafür dauerhaft eingeklappt; ein Tipp auf „Menü“ öffnet sie als Overlay – darüber erreicht man Einstellungen, Karten, Energie und alle anderen Dashboards, ohne den Kiosk-Modus abzuschalten.
+- Im Original sitzt unten in der Leiste eine kleine Uhr, die zu den Einstellungen führt; hier übernimmt das der Menü-Knopf.
+- Optional: `variables.secondary` (Liste von View-Pfaden) verschiebt selten genutzte Ansichten hinter einen „Mehr“-Knopf (⋯) mit Aufklappmenü.
+
+### Räume (`frame_room`)
+
+Eine Karte pro Raum mit allem, was dort steuerbar ist:
+
+- **Kopf:** Raumname und Ist-Temperatur.
+- **Heizung:** je Thermostat Soll mit **− / +** in der Schrittweite des Thermostats; der neue Wert steht sofort da, auch wenn mehrmals schnell getippt wird. Zustand in Klartext: „heizt“, „Soll erreicht“, „zu kalt · Ventil zu“ (unter Soll, aber das Ventil heizt nicht) oder „Raumfühler offline“.
+- **Licht:** ein Knopf pro Lampe und „N an · alle aus“.
+- **Rollläden:** ↑ ■ ↓ je Rollladen mit Position als Füllung, bei mehreren zusätzlich „alle“ ↑ ↓.
+- **Musik:** Lautstärke in 5-%-Schritten; schnelles Mehrfachtippen wird zusammengezählt.
+
+`frame_room_heading` ist die passende Abschnittsüberschrift mit Kurzfassung („21,3° · Soll 21,0° · 48 % · heizt · 2 von 4 Lichtern an“).
+
+### Kleine Bausteine
+
+- `frame_gate` – Garagen- oder Carport-Tor: „Zu · antippen öffnet“, „Offen · seit 12 Min.“, „öffnet …“. Tippen fährt das Tor **mit Sicherheitsabfrage** („Wirklich öffnen: Garage?“), Halten öffnet die Details.
+- `frame_tile` – allgemeine Statuskachel (Server-Dienste, Sicherheit, Garten). Erkennt „aktiv“ selbst an Zuständen wie `on`, `open`, `heating`, `playing`, `home`, `detected`; nicht verfügbare Entitäten werden blass.
+- `frame_news` – Vorgänger der „Jetzt“-Karte, nicht mehr eingebunden.
+
+### Ansichten und Layout
+
+- **Sieben Ansichten** statt der drei im Starter: Start, Räume, Energie, Server (Host, Dienste, TeamSpeak), Garten (Bewässerung, Spots, Wetter), Rollläden, Sicherheit.
+- **`frame-layout.js`** erweitert layout-card, damit in `mediaquery` auch `height`, `padding`, `margin` und eigene `--Variablen` greifen. So bleibt das iPad-Layout bildschirmfüllend, und unter 768 px wird daraus eine scrollende Spalte.
+- Alle Texte, Datums- und Zahlenformate auf **Deutsch**.
+
 ## Voraussetzungen
 
 Über HACS:
@@ -104,7 +139,7 @@ Das Frame-Design, die Runtime und die Kartenvorlagen stammen von **Chris Jahn** 
 |---|---|
 | `www/frame/frame.js` | **Original von Chris Jahn** – die Frame-Runtime aus ha-frame-starter, Stand [`1becc23`](https://github.com/slcr/ha-frame-starter/commit/1becc23) vom 17.10.2026, gekürzt auf die hier genutzten Helfer. Keine eigenen Änderungen am Code. Neuere Versionen gibt es im Original-Repo. |
 | `themes/frame/frame.yaml` | Theme **Frame** aus ha-frame-starter; **Frame Haus** (für das ganze HA) ist neu darauf aufgebaut. |
-| `dashboards/start.yaml` | 16 der 23 Kartenvorlagen (`button_card_templates`) stammen aus ha-frame-starter und sind angepasst: `frame`, `frame_rail`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_stats`, `frame_heading`, `frame_energy`. Neu sind `frame_now` und `frame_lights` (die dynamischen Karten, siehe [Dynamik auf der Startseite](#dynamik-auf-der-startseite)), `frame_tile`, `frame_gate`, `frame_news`, `frame_room`, `frame_room_heading` sowie Ansichten, Karten und deutsche Texte. |
+| `dashboards/start.yaml` | 16 der 23 Kartenvorlagen (`button_card_templates`) stammen aus ha-frame-starter und sind angepasst: `frame`, `frame_rail`, `frame_clock`, `frame_weather`, `frame_people`, `frame_next`, `frame_agenda`, `frame_scene`, `frame_light`, `frame_cover`, `frame_lock`, `frame_openings`, `frame_rooms`, `frame_stats`, `frame_heading`, `frame_energy` – `frame_rail` hat dabei den iPad-Menü-Knopf und das „Mehr“-Menü dazubekommen (siehe [Weitere Besonderheiten](#weitere-besonderheiten)). Neu sind `frame_now` und `frame_lights` (die dynamischen Karten, siehe [Dynamik auf der Startseite](#dynamik-auf-der-startseite)), `frame_tile`, `frame_gate`, `frame_news`, `frame_room`, `frame_room_heading` sowie Ansichten, Karten und deutsche Texte. |
 | `www/frame/frame-layout.js` | Neu (Erweiterung für layout-card). |
 | `dashboards/uebersicht.yaml`, `klima-heizung.yaml`, `einkauf-liste.yaml`, `scripts/szenen.yaml` | Neu, im Frame-Look gestaltet. |
 
